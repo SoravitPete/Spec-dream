@@ -1,0 +1,16 @@
+version: '3.1'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: my-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: spec-dream
+      MONGO_INITDB_ROOT_PASSWORD: qwerty
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
