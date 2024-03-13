@@ -1,75 +1,75 @@
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.preprocessing import MultiLabelBinarizer
-from sklearn.metrics import accuracy_score, classification_report
+import random
 
-# Sample data with App_Usage_Time for individual programs
-data = {
-    'User_ID': [1, 2, 3],
-    'Usage_Patterns': ['Heavy', 'Moderate', 'Light'],
-    'Task_Frequency': ['Regular', 'Occasional', 'Frequent'],
-    'Multitasking_Habits': ['High', 'Medium', 'Low'],
-    'CPU': ['Intel i7', 'AMD Ryzen 5', 'Intel i5'],
-    'GPU': ['Nvidia GTX 3080', 'AMD Radeon RX 570', 'Integrated'],
-    'RAM': ['32GB', '16GB', '8GB'],
-    'Storage': ['1TB SSD', '500GB HDD', '256GB SSD'],
-    'OS': ['Windows 10', 'Ubuntu', 'macOS'],
-    'Software': [['Program1', 'Program2'], ['Program2', 'Program3'], ['Program3', 'Program4']],
-    'App_Usage_Time': [['3 days', '7 days'], ['2 days', '5 days'], ['4 days', '6 days']],
-    'Resource_Consumption': ['High', 'Medium', 'Low'],
-    'Upgrade_History': ['2022-01-01', '2022-02-15', '2021-12-05'],
-    'Performance_Rating': [5, 4, 3],
-    'Performance_Issues': ['No', 'Yes', 'Yes'],
-    'Preferences': ['Optimal', 'Balanced', 'Power Saving'],
-    'Age': [28, 35, 22],
-    'Profession': ['Graphic Designer', 'Software Developer', 'Student'],
-    'Open_Tabs': [20, 10, 5],
-    'Program_Usage': ['Program1', 'Program2', 'Program3'],
+hardware_options = {
+    'CPU': {'i5': 200, 'i7': 300, 'i9': 500},
+    'RAM': {'8GB': 80, '16GB': 120, '32GB': 240},
+    'GPU': {'GTX1060': 250, 'RTX2060': 400, 'RTX3070': 600},
+    'Storage': {'256GB SSD': 100, '512GB SSD': 150, '1TB SSD': 250}
 }
 
-# Convert 'App_Usage_Time' to numerical features
-def convert_app_usage_time(app_usage_time):
-    converted_time = [int(time.split()[0]) for time in app_usage_time]
-    return converted_time
+def generate_population(population_size):
+    population = []
+    for _ in range(population_size):
+        config = {
+            'CPU': random.choice(list(hardware_options['CPU'].keys())),
+            'RAM': random.choice(list(hardware_options['RAM'].keys())),
+            'GPU': random.choice(list(hardware_options['GPU'].keys())),
+            'Storage': random.choice(list(hardware_options['Storage'].keys()))
+        }
+        population.append(config)
+    return population
 
-data['App_Usage_Time'] = [convert_app_usage_time(usage_time) for usage_time in data['App_Usage_Time']]
+def evaluate_fitness(configuration, budget):
+    total_cost = sum(hardware_options[component][configuration[component]] for component in configuration)
+    return 1 / (1 + abs(total_cost - budget))
 
-# Flatten the 'Software' list of lists
-mlb = MultiLabelBinarizer()
-software_encoded = mlb.fit_transform(data['Software'])
-software_df = pd.DataFrame(software_encoded, columns=mlb.classes_)
+def crossover(parent1, parent2):
+    crossover_point = random.choice(list(parent1.keys()))
+    child = {}
+    for component in parent1:
+        if component == crossover_point:
+            child[component] = parent2[component]
+        else:
+            child[component] = parent1[component]
+    return child
 
-# Flatten the 'App_Usage_Time' list of lists
-app_usage_time_df = pd.DataFrame(data['App_Usage_Time'], columns=[f'App_Usage_Time_{i}' for i in range(len(data['App_Usage_Time'][0]))])
+def mutate(configuration):
+    mutated_component = random.choice(list(configuration.keys()))
+    new_value = random.choice(list(hardware_options[mutated_component].keys()))
+    configuration[mutated_component] = new_value
+    return configuration
 
-# Combine the original data with the encoded 'Software' and 'App_Usage_Time' features
-data = pd.concat([pd.DataFrame(data), software_df, app_usage_time_df], axis=1)
+def select_parents(population, budget):
+    tournament_size = 5
+    tournament = random.sample(population, tournament_size)
+    tournament.sort(key=lambda x: evaluate_fitness(x, budget), reverse=True)
+    return tournament[0], tournament[1]
 
-# Drop non-numeric columns and columns used for encoding
-X = data.drop(['User_ID', 'Usage_Patterns', 'Task_Frequency', 'Multitasking_Habits',
-               'CPU', 'GPU', 'RAM', 'Storage', 'OS', 'Software', 'Resource_Consumption',
-               'Upgrade_History', 'Performance_Issues', 'Preferences', 'Profession',
-               'Program_Usage', 'App_Usage_Time', 'Performance_Rating'], axis=1)
+def genetic_algorithm(budget, generations, population_size):
+    population = generate_population(population_size)
 
-# Target variable
-y = data['Performance_Rating']
+    for generation in range(generations):
+        population.sort(key=lambda x: evaluate_fitness(x, budget), reverse=True)
+        new_population = []
 
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        elite_size = int(0.1 * population_size)
+        new_population.extend(population[:elite_size])
 
-# Train a Decision Tree Classifier
-model = DecisionTreeClassifier(random_state=42)
-model.fit(X_train, y_train)
+        for _ in range(population_size - elite_size):
+            parent1, parent2 = select_parents(population, budget)
+            child = crossover(parent1, parent2)
+            if random.random() < 0.1: 
+                child = mutate(child)
+            new_population.append(child)
 
-# Make predictions on the test set
-y_pred = model.predict(X_test)
+        population = new_population
 
-# Evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Accuracy: {accuracy}")
+    population.sort(key=lambda x: evaluate_fitness(x, budget), reverse=True)
+    return population[0]
 
-# Display the classification report
-class_report = classification_report(y_test, y_pred)
-print("Classification Report:")
-print(class_report)
+budget = 1000
+generations = 50
+population_size = 100
+
+best_configuration = genetic_algorithm(budget, generations, population_size)
+print("Best Configuration:", best_configuration)
