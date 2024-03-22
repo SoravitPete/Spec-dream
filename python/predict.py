@@ -1,75 +1,111 @@
 import random
 
-hardware_options = {
-    'CPU': {'i5': 200, 'i7': 300, 'i9': 500},
-    'RAM': {'8GB': 80, '16GB': 120, '32GB': 240},
-    'GPU': {'GTX1060': 250, 'RTX2060': 400, 'RTX3070': 600},
-    'Storage': {'256GB SSD': 100, '512GB SSD': 150, '1TB SSD': 250}
+components = {
+    "CPU": [
+        {"name": "CPU1", "base_clock": 3.5, "cores": 4, "multi_threaded": False, "socket": "Socket1", "price": 200},
+        {"name": "CPU2", "base_clock": 3.0, "cores": 8, "multi_threaded": True, "socket": "Socket2", "price": 300}
+    ],
+    "RAM": [
+        {"name": "RAM1", "capacity": 8, "rgb": True, "price": 100},
+        {"name": "RAM2", "capacity": 16, "rgb": False, "price": 150}
+    ],
+    "GPU": [
+        {"name": "GPU1", "core_clock": 1400, "vram": 6, "price": 400},
+        {"name": "GPU2", "core_clock": 1200, "vram": 8, "price": 500}
+    ],
+    "Motherboard": [
+        {"name": "Motherboard1", "formfactor": "ATX", "socket": "Socket1", "max_memory": 16, "price": 150},
+        {"name": "Motherboard2", "formfactor": "Mini-ITX", "socket": "Socket2", "max_memory": 32, "price": 200}
+    ],
+    "Casing": [
+        {"name": "Casing1", "formfactor": "ATX", "rgb": True, "price": 80},
+        {"name": "Casing2", "formfactor": "Mini-ITX", "rgb": False, "price": 60}
+    ],
+    "PSU": [
+        {"name": "PSU1", "wattage": 500, "price": 80},
+        {"name": "PSU2", "wattage": 600, "price": 100}
+    ]
 }
 
-def generate_population(population_size):
-    population = []
-    for _ in range(population_size):
-        config = {
-            'CPU': random.choice(list(hardware_options['CPU'].keys())),
-            'RAM': random.choice(list(hardware_options['RAM'].keys())),
-            'GPU': random.choice(list(hardware_options['GPU'].keys())),
-            'Storage': random.choice(list(hardware_options['Storage'].keys()))
-        }
-        population.append(config)
-    return population
+budget = 1500
 
-def evaluate_fitness(configuration, budget):
-    total_cost = sum(hardware_options[component][configuration[component]] for component in configuration)
-    return 1 / (1 + abs(total_cost - budget))
+def getRandomComponents():
+    individual = {}
+    for component, options in components.items():
+        individual[component] = random.choice(options)
+    return individual
+
+def calculateFitness(individual, usage, style):
+    total_price = sum(component["price"] for component in individual.values())
+    fitness = 1 / (1 + abs(budget - total_price))
+    
+    cpu = individual["CPU"]
+    motherboard = individual["Motherboard"]
+    casing = individual["Casing"]
+    ram = individual["RAM"]
+    gpu = individual["GPU"]
+    psu = individual["PSU"]
+    
+    if (
+        (motherboard["formfactor"] == casing["formfactor"]) and 
+        (motherboard["socket"] == cpu["socket"]) and 
+        (ram["capacity"] <= motherboard["max_memory"]) and 
+        # (psu["wattage"] >= cpu["wattage"] + 300) and 
+        
+        ((usage == "Gaming" and cpu["base_clock"] >= 3.5 and ram["capacity"] >= 8 and gpu["core_clock"] >= 1300) or
+         (usage == "Streaming/Editing" and cpu["cores"] >= 6 and cpu["multi_threaded"] and gpu["vram"] >= 4) or
+         (usage == "Office/Browsing" and cpu["base_clock"] <= 3.0 and gpu["core_clock"] <= 1300)) and
+        
+        ((style == "Gamer" and casing["rgb"] and ram["rgb"]) or
+         (style == "Minimalist" and not casing["rgb"] and not ram["rgb"]))
+    ):
+        fitness += 1
+    else:
+        fitness -= 1
+    
+    return fitness
 
 def crossover(parent1, parent2):
-    crossover_point = random.choice(list(parent1.keys()))
     child = {}
-    for component in parent1:
-        if component == crossover_point:
-            child[component] = parent2[component]
-        else:
+    for component in components.keys():
+        if random.random() < 0.5:
             child[component] = parent1[component]
+        else:
+            child[component] = parent2[component]
     return child
 
-def mutate(configuration):
-    mutated_component = random.choice(list(configuration.keys()))
-    new_value = random.choice(list(hardware_options[mutated_component].keys()))
-    configuration[mutated_component] = new_value
-    return configuration
+def mutation(individual):
+    mutated_individual = individual.copy()
+    component = random.choice(list(components.keys()))
+    mutated_individual[component] = random.choice(components[component])
+    return mutated_individual
 
-def select_parents(population, budget):
-    tournament_size = 5
-    tournament = random.sample(population, tournament_size)
-    tournament.sort(key=lambda x: evaluate_fitness(x, budget), reverse=True)
-    return tournament[0], tournament[1]
-
-def genetic_algorithm(budget, generations, population_size):
-    population = generate_population(population_size)
-
-    for generation in range(generations):
-        population.sort(key=lambda x: evaluate_fitness(x, budget), reverse=True)
-        new_population = []
-
-        elite_size = int(0.1 * population_size)
-        new_population.extend(population[:elite_size])
-
-        for _ in range(population_size - elite_size):
-            parent1, parent2 = select_parents(population, budget)
-            child = crossover(parent1, parent2)
-            if random.random() < 0.1: 
-                child = mutate(child)
-            new_population.append(child)
-
-        population = new_population
-
-    population.sort(key=lambda x: evaluate_fitness(x, budget), reverse=True)
-    return population[0]
-
-budget = 1000
-generations = 50
 population_size = 100
+population = [getRandomComponents() for _ in range(population_size)]
 
-best_configuration = genetic_algorithm(budget, generations, population_size)
-print("Best Configuration:", best_configuration)
+generations = 1000
+for generation in range(generations):
+    fitness_values = [(individual, calculateFitness(individual, usage="Streaming/Editing", style="Gamer")) for individual in population]
+    population = [individual for individual, _ in sorted(fitness_values, key=lambda x: x[1], reverse=True)] 
+    selected_parents = population[:population_size // 2]
+    next_generation = []
+    for i in range(population_size // 2):
+        parent1 = random.choice(selected_parents)
+        parent2 = random.choice(selected_parents)
+        child = crossover(parent1, parent2)
+        if random.random() < 0.1: 
+            child = mutation(child)
+        next_generation.append(child)
+    
+    population = next_generation
+    
+    best_individual, best_fitness = max(fitness_values, key=lambda x: x[1])
+    print(f"Generation {generation+1}: Best Fitness: {best_fitness}, Total Price: {sum(option['price'] for option in best_individual.values())}")
+
+best_individual, best_fitness = max(fitness_values, key=lambda x: x[1])
+
+print("\nBest Individual:")
+for component, option in best_individual.items():
+    print(f"{component}: {option['name']}")
+print(f"Total Price: {sum(option['price'] for option in best_individual.values())}")
+print(f"Fitness: {best_fitness}")
