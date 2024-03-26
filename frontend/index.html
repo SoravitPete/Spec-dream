@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PC Builder</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>PC Builder</h1>
+    <div>
+        <label for="usage">Usage:</label>
+        <select id="usage">
+            <option value="Gaming">Gaming</option>
+            <option value="Streaming/Editing">Streaming/Editing</option>
+            <option value="Office/Browsing">Office/Browsing</option>
+        </select>
+    </div>
+    <div>
+        <label for="style">Style:</label>
+        <select id="style">
+            <option value="Gamer">Gamer</option>
+            <option value="Minimalist">Minimalist</option>
+        </select>
+    </div>
+    <div>
+        <label for="budget">Budget:</label>
+        <input type="number" id="budget" placeholder="Enter budget">
+    </div>
+    <button onclick="evolve()">Evolve</button>
+    <div id="result"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

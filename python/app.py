@@ -1,7 +1,12 @@
 from flask import Flask, request, jsonify
 import random
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+CORS(app)
+
+CORS(app, resources={r"/evolve": {"origins": "http://127.0.0.1:5500"}})
 
 # Define components and other global variables
 components = {
@@ -34,7 +39,6 @@ components = {
 # budget = 1000
 population_size = 100
 generations = 1000
-
 
 def getRandomComponents():
     individual = {}
@@ -127,7 +131,6 @@ def evolve_population():
     }
 
     return jsonify(result)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
