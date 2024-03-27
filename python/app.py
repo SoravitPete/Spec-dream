@@ -152,7 +152,7 @@ def calculate_score(specs, usage, style, budget):
     if total_price > budget:
         factor_scores["budget"] = 1
     else:
-        factor_scores["budget"] = min(10, 10 * total_price / budget)  # Scale from 1 to 10
+        factor_scores["budget"] = min(10, 10 * total_price / budget) 
     
     cpu_score = 10 if cpu["base_clock"] >= 3.5 else 1
     motherboard_score = 10 if motherboard["formfactor"] == casing["formfactor"] and motherboard["socket"] == cpu["socket"] and ram["capacity"] <= motherboard["max_memory"] else 1
@@ -171,7 +171,6 @@ def calculate_score(specs, usage, style, budget):
     ):
         factor_scores["compatibility"] = 10
 
-    # Adjust performance score based on additional factors
     if factor_scores["compatibility"] == 10:
         performance_factors = [cpu_power_score, gpu_capability_score, ram_capacity_score]
         if all(score == 10 for score in performance_factors):
@@ -194,7 +193,7 @@ def calculate_score(specs, usage, style, budget):
         "style": 0.2
     }
     weighted_scores = {factor: weights[factor] * score for factor, score in factor_scores.items()}
-    overall_score = min(10, sum(weighted_scores.values()) / sum(weights.values()))  # Cap score at 10
+    overall_score = min(10, sum(weighted_scores.values()) / sum(weights.values()))
     
     report = {}
     report["budget"] = f"The total price is ${total_price} which {'exceeds' if total_price > budget else 'meets or is within'} the budget of ${budget}. with score {factor_scores['budget']}"
@@ -202,7 +201,6 @@ def calculate_score(specs, usage, style, budget):
     report["performance"] = f"The system meets the performance criteria. with score {factor_scores['performance']}"
     report["style"] = f"The chosen style {'matches' if factor_scores['style'] == 10 else 'does not match'} the desired style ({style}). with score {factor_scores['style']}"
     
-    # Adding component scores to the report
     report["CPU Score"] = cpu_score
     report["Motherboard Score"] = motherboard_score
     report["RAM Score"] = ram_score
