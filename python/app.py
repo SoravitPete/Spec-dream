@@ -11,8 +11,8 @@ CORS(app, resources={r"/evolve": {"origins": "http://127.0.0.1:5500"}})
 # Define components and other global variables
 components = {
     "CPU": [
-        {"name": "CPU1", "base_clock": 3.5, "cores": 4, "multi_threaded": False, "socket": "Socket1", "price": 200},
-        {"name": "CPU2", "base_clock": 3.0, "cores": 8, "multi_threaded": True, "socket": "Socket2", "price": 300}
+        {"name": "CPU1", "base_clock": 3.5, "cores": 4, "multi_threaded": False, "socket": "Socket1", "price": 200, "wattage": 100},
+        {"name": "CPU2", "base_clock": 3.0, "cores": 8, "multi_threaded": True, "socket": "Socket2", "price": 300, "wattage": 100}
     ],
     "RAM": [
         {"name": "RAM1", "capacity": 8, "rgb": True, "price": 100},
@@ -128,6 +128,107 @@ def evolve_population():
         "best_individual": best_individual,
         "total_price": sum(option['price'] for option in best_individual.values()),
         "fitness": best_fitness
+    }
+
+    return jsonify(result)
+
+def calculate_score(specs, usage, style, budget):
+    cpu = specs["CPU"]
+    motherboard = specs["Motherboard"]
+    casing = specs["Casing"]
+    ram = specs["RAM"]
+    gpu = specs["GPU"]
+    psu = specs["PSU"]
+    
+    total_price = sum(component["price"] for component in specs.values())
+
+    factor_scores = {
+        "budget": 0,
+        "compatibility": 0,
+        "performance": 0,
+        "style": 0
+    }
+    
+    if total_price > budget:
+        factor_scores["budget"] = 1
+    else:
+        factor_scores["budget"] = min(10, 10 * total_price / budget)  # Scale from 1 to 10
+    
+    cpu_score = 10 if cpu["base_clock"] >= 3.5 else 1
+    motherboard_score = 10 if motherboard["formfactor"] == casing["formfactor"] and motherboard["socket"] == cpu["socket"] and ram["capacity"] <= motherboard["max_memory"] else 1
+    ram_score = 10 if ram["capacity"] >= 8 else 1
+    gpu_score = 10 if gpu["core_clock"] >= 1300 else 1
+    psu_score = 10 if psu["wattage"] >= cpu["wattage"] + 300 else 1
+
+    cpu_power_score = 10 if cpu["cores"] >= 6 and cpu["multi_threaded"] else 1
+    gpu_capability_score = 10 if gpu["vram"] >= 4 else 1
+    ram_capacity_score = 10 if ram["capacity"] >= 16 else 1
+
+    if (
+        (usage == "Gaming" and cpu_score == 10 and ram_score == 10 and gpu_score == 10) or
+        (usage == "Streaming/Editing" and cpu_power_score == 10 and gpu_capability_score == 10) or
+        (usage == "Office/Browsing" and cpu["base_clock"] <= 3.0 and ram_capacity_score == 10)
+    ):
+        factor_scores["compatibility"] = 10
+
+    # Adjust performance score based on additional factors
+    if factor_scores["compatibility"] == 10:
+        performance_factors = [cpu_power_score, gpu_capability_score, ram_capacity_score]
+        if all(score == 10 for score in performance_factors):
+            factor_scores["performance"] = 10
+        else:
+            factor_scores["performance"] = min(10, sum(performance_factors) / len(performance_factors))
+    
+    casing_score = 10 if (style == "Gamer" and casing["rgb"]) or (style == "Minimalist" and not casing["rgb"]) else 1
+    ram_style_score = 10 if (style == "Gamer" and ram["rgb"]) or (style == "Minimalist" and not ram["rgb"]) else 1
+
+    if casing_score == 10 and ram_style_score == 10:
+        factor_scores["style"] = 10
+    else:
+        factor_scores["style"] = 1
+    
+    weights = {
+        "budget": 0.3,
+        "compatibility": 0.3,
+        "performance": 0.2,
+        "style": 0.2
+    }
+    weighted_scores = {factor: weights[factor] * score for factor, score in factor_scores.items()}
+    overall_score = min(10, sum(weighted_scores.values()) / sum(weights.values()))  # Cap score at 10
+    
+    report = {}
+    report["budget"] = f"The total price is ${total_price} which {'exceeds' if total_price > budget else 'meets or is within'} the budget of ${budget}. with score {factor_scores['budget']}"
+    report["compatibility"] = f"The components are compatible with each other. with score {factor_scores['compatibility']}"
+    report["performance"] = f"The system meets the performance criteria. with score {factor_scores['performance']}"
+    report["style"] = f"The chosen style {'matches' if factor_scores['style'] == 10 else 'does not match'} the desired style ({style}). with score {factor_scores['style']}"
+    
+    # Adding component scores to the report
+    report["CPU Score"] = cpu_score
+    report["Motherboard Score"] = motherboard_score
+    report["RAM Score"] = ram_score
+    report["GPU Score"] = gpu_score
+    report["PSU Score"] = psu_score
+    report["Casing Style Score"] = casing_score
+    report["RAM Style Score"] = ram_style_score
+
+    return {
+        "score": overall_score,
+        "report": report
+    }
+
+
+@app.route('/evaluate', methods=['POST'])
+def evaluate_specs():
+    data = request.get_json()
+    specs = data['specs']
+    usage = data['usage']
+    style = data['style']
+    budget = data['budget']
+
+    score = calculate_score(specs, usage, style, budget)
+
+    result = {
+        "score": score
     }
 
     return jsonify(result)
