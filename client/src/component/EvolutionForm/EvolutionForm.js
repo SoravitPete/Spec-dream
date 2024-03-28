@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './EvolutionForm.css'; // Import your CSS file for styling
 
 function EvolutionForm() {
     const [usage, setUsage] = useState('');
@@ -36,8 +37,9 @@ function EvolutionForm() {
     }
 
     return (
-        <div>
-            <div>
+        <div className="evolution-form">
+            <h1>PC Builder</h1>
+            <div className="form-group">
                 <label htmlFor="usage">Usage:</label>
                 <select id="usage" value={usage} onChange={(e) => setUsage(e.target.value)}>
                     <option value="Gaming">Gaming</option>
@@ -45,20 +47,20 @@ function EvolutionForm() {
                     <option value="Office/Browsing">Office/Browsing</option>
                 </select>
             </div>
-            <div>
+            <div className="form-group">
                 <label htmlFor="style">Style:</label>
                 <select id="style" value={style} onChange={(e) => setStyle(e.target.value)}>
                     <option value="Gamer">Gamer</option>
                     <option value="Minimalist">Minimalist</option>
                 </select>
             </div>
-            <div>
+            <div className="form-group">
                 <label htmlFor="budget">Budget:</label>
                 <input type="number" id="budget" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="Enter budget" />
             </div>
-            <button onClick={evolve}>Evolve</button>
+            <button className="button-34" onClick={evolve}>Evolve</button> {/* Add className */}
             {result && (
-                <div id="result">
+                <div className="result">
                     <p>Best Individual: {JSON.stringify(result.best_individual)}</p>
                     <p>Total Price: {result.total_price}</p>
                     <p>Fitness: {result.fitness}</p>

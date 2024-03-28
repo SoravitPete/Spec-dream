@@ -1,3 +1,4 @@
 ts-express/.env
 ts-express/node_modules
 client/node_modules
+python/.env
