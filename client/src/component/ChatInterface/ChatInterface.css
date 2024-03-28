@@ -1,40 +1,65 @@
 /* ChatInterface.css */
 
 .chat-interface {
-    background-color: #46454f;
+    background-color: #f4f6f9; /* Adjust as needed */
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 10px;
     margin-top: 20px;
-    padding: 10px;
-    max-width: 400px; /* Adjust as needed */
+    padding: 20px;
+    max-width: 500px; /* Adjust as needed */
     margin-left: auto;
     margin-right: auto;
+    font-family: Arial, sans-serif; /* Use a suitable font */
 }
 
 .chat-container {
     overflow-y: auto;
-    max-height: 200px; /* Adjust as needed */
+    max-height: 300px; /* Adjust as needed */
+    margin-bottom: 20px; /* Add some space at the bottom */
 }
 
 .message {
-    margin: 5px 10px;
-    padding: 8px;
-    border-radius: 8px;
-    background-color: #cce6ff; /* User message background color */
+    margin: 10px;
+    padding: 15px;
+    border-radius: 15px;
+    background-color: #fff; /* Message bubble background color */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    display: inline-block;
+    max-width: 70%; /* Limit message width */
+    word-wrap: break-word; /* Wrap long messages */
 }
 
 .message.ai {
-    background-color: #e6e6e6; /* AI response background color */
+    background-color: #303030; /* AI response background color */
 }
 
 .input-container {
-    margin-top: 10px;
+    display: flex;
 }
 
 .input-container input {
-    width: calc(100% - 20px);
-    padding: 10px;
+    flex: 1;
+    padding: 12px;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 20px; /* Make input field rounded */
     outline: none;
+}
+
+.input-container input:focus {
+    border-color: #4a90e2; /* Change border color on focus */
+}
+
+.input-container button {
+    background-color: #4a90e2; /* Button background color */
+    color: #fff;
+    border: none;
+    border-radius: 20px; /* Make button rounded */
+    padding: 10px 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    outline: none;
+}
+
+.input-container button:hover {
+    background-color: #357dbf; /* Darken button color on hover */
 }

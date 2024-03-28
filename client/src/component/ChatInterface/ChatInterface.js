@@ -7,11 +7,30 @@ function ChatInterface() {
     function sendMessage(messageText) {
         if (messageText.trim() !== '') {
             setMessages([...messages, { text: messageText, sender: 'user' }]);
-            setTimeout(() => {
-                const response = { text: 'This is a response from AI.', sender: 'ai' };
-                setMessages([...messages, response]);
-            }, 500);
+            textGeneration(messageText);
         }
+    }
+
+    function textGeneration(messageText) {
+        const data = {
+            message: messageText
+        };
+    
+        fetch('http://127.0.0.1:5000/textGeneration', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.text())
+        .then(result => {
+            const aiResponse = { text: result, sender: 'ai' };
+            setMessages([...messages, aiResponse]); // Display AI response
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
     }
 
     function handleKeyDown(event) {
@@ -19,7 +38,7 @@ function ChatInterface() {
             event.preventDefault();
             const messageText = event.target.value;
             sendMessage(messageText);
-            event.target.value = '';
+            event.target.value = ''; // Clear the input field
         }
     }
 

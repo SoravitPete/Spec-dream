@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import random
 from flask_cors import CORS
+from LLM import textGeneration
 
 app = Flask(__name__)
 
@@ -35,6 +36,12 @@ components = {
         {"name": "PSU2", "wattage": 600, "price": 100}
     ]
 }
+
+
+system_message = """
+As a text generation assistant, your role is to analyze and elucidate the specifications provided by the user
+regarding their computer setup. We'll delve into the advantages and disadvantages of the components chosen.
+Let's begin by dissecting the configuration."""
 
 # budget = 1000
 population_size = 100
@@ -230,6 +237,18 @@ def evaluate_specs():
     }
 
     return jsonify(result)
+
+@app.route('/textGeneration', methods=['POST'])
+def text_generation():
+    data = request.get_json()
+    message = data['message']
+
+    res = textGeneration(system_message, message)
+
+    chat_completion_message = res.choices[0].message
+    content = chat_completion_message.content
+
+    return content
 
 if __name__ == '__main__':
     app.run(debug=True)

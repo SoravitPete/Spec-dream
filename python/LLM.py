@@ -54,14 +54,14 @@ Total Price: $1090
 Fitness: -0.989010989010989
 """
 
-# Generate completion
-completion = client.chat.completions.create(
+
+def textGeneration(system_message, json_data_string):
+    completion = client.chat.completions.create(
     model="gpt-3.5-turbo",
     messages=[
         {"role": "system", "content": system_message},
         {"role": "user", "content": json_data_string}
-    ]
-)
+    ])
 
-# Print the generated paragraph
-print(completion.choices[0].message)
+    return completion
+

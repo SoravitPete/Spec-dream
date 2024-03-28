@@ -25,8 +25,8 @@ function handleNavbarAnimation() {
 
       var activeWidthNewAnimWidth = clickedItem.offsetWidth;
       var itemPosNewAnimLeft = clickedItem.offsetLeft;
-      horiSelector.style.left = itemPosNewAnimLeft + "px";
-      horiSelector.style.width = activeWidthNewAnimWidth + "px";
+      horiSelector.style.left = itemPosNewAnimLeft + 4 + "px";
+      horiSelector.style.width = activeWidthNewAnimWidth + 4 + "px";
     }
   });
 }
