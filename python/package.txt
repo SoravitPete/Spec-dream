@@ -1,0 +1,8 @@
+opencv-python
+keytotext
+pip install accelerate -U
+pip install accelerate
+pip install nlpaug language-tool-python
+pip install nltk
+pip install tf-keras
+pip install python-dotenv
