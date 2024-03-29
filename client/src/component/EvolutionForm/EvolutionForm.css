@@ -1,11 +1,16 @@
 .evolution-form {
-    max-width: 400px;
+    max-width: 600px; /* Increased for better table layout */
     margin: 0 auto;
     margin-top: 100px;
+    padding: 20px; /* Added padding for better spacing */
+    background-color: #f9f9f9; /* Added background color */
+    border-radius: 10px; /* Added border radius */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Added box shadow */
 }
 
 h1 {
-    margin-top: 20px; 
+    color: #5a5a5a;
+    margin-top: 0; /* Removed margin-top to align with form */
 }
 
 .form-group {
@@ -13,7 +18,7 @@ h1 {
 }
 
 label {
-    margin-right: 10px; 
+    margin-right: 10px;
     display: block;
     font-weight: bold;
 }
@@ -26,30 +31,64 @@ select {
 }
 
 .button-34 {
-  background: #5E5DF0;
-  border-radius: 999px;
-  box-shadow: #5E5DF0 0 10px 20px -10px;
-  box-sizing: border-box;
-  color: #FFFFFF;
-  cursor: pointer;
-  font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji",NotoColorEmoji,"Noto Color Emoji","Segoe UI Symbol","Android Emoji",EmojiSymbols,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 24px;
-  opacity: 1;
-  outline: 0 solid transparent;
-  padding: 8px 18px;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  width: fit-content;
-  word-break: break-word;
-  border: 0;
-}
+    background: #5E5DF0;
+    border-radius: 999px;
+    box-shadow: #5E5DF0 0 10px 20px -10px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji",NotoColorEmoji,"Noto Color Emoji","Segoe UI Symbol","Android Emoji",EmojiSymbols,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 24px;
+    opacity: 1;
+    outline: 0 solid transparent;
+    padding: 8px 18px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: fit-content;
+    word-break: break-word;
+    border: 0;
+  }
 
 .result {
     margin-top: 20px;
-    padding: 10px;
+    padding: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    color: black; /* Change text color to black */
 }
+
+/* New styles for the table */
+.result table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.result th,
+.result td {
+    padding: 8px;
+    border: 1px solid #474747;
+}
+
+.result th {
+    color: white;
+    background-color: #5a5a5a;
+    font-weight: bold;
+    text-align: left;
+}
+
+.result td ul {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.result td ul li {
+    list-style-type: none;
+}
+
+.result td ul li strong {
+    font-weight: bold;
+}
+

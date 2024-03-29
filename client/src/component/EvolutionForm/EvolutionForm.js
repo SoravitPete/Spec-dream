@@ -6,8 +6,11 @@ function EvolutionForm() {
     const [style, setStyle] = useState('');
     const [budget, setBudget] = useState('');
     const [result, setResult] = useState(null);
+    const [loading, setLoading] = useState(false); // State variable for loading
 
     function evolve() {
+        setLoading(true); // Set loading to true when evolution starts
+
         const data = {
             usage,
             style,
@@ -25,15 +28,13 @@ function EvolutionForm() {
         })
         .then(response => response.json())
         .then(result => {
-            displayResult(result);
+            setResult(result);
+            setLoading(false); // Set loading to false when evolution finishes
         })
         .catch(error => {
             console.error('Error:', error);
+            setLoading(false); // Set loading to false if there's an error
         });
-    }
-
-    function displayResult(result) {
-        setResult(result);
     }
 
     return (
@@ -58,12 +59,41 @@ function EvolutionForm() {
                 <label htmlFor="budget">Budget:</label>
                 <input type="number" id="budget" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="Enter budget" />
             </div>
-            <button className="button-34" onClick={evolve}>Evolve</button> {/* Add className */}
+            <button className="button-34" onClick={evolve} disabled={loading}>
+                {loading ? 'Loading...' : 'Evolve'} {/* Change button text based on loading state */}
+            </button>
             {result && (
                 <div className="result">
-                    <p>Best Individual: {JSON.stringify(result.best_individual)}</p>
-                    <p>Total Price: {result.total_price}</p>
-                    <p>Fitness: {result.fitness}</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {Object.entries(result.best_individual).map(([component, details]) => (
+                                <tr key={component}>
+                                    <td>{component}</td>
+                                    <td>
+                                        <ul>
+                                            {Object.entries(details).map(([property, value]) => (
+                                                <li key={property}><strong>{property}:</strong> {value}</li>
+                                            ))}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            ))}
+                            <tr>
+                                <td>Total Price:</td>
+                                <td>{result.total_price}</td>
+                            </tr>
+                            <tr>
+                                <td>Fitness:</td>
+                                <td>{result.fitness}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             )}
         </div>
