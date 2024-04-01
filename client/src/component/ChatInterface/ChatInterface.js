@@ -7,12 +7,43 @@ function ChatInterface() {
     function sendMessage(messageText) {
         if (messageText.trim() !== '') {
             setMessages([...messages, { text: messageText, sender: 'user' }]);
-            setTimeout(() => {
-                const response = { text: 'This is a response from AI.', sender: 'ai' };
-                setMessages([...messages, response]);
-            }, 500);
+            textGeneration(messageText);
         }
     }
+
+    function textGeneration(messageText) {
+        const data = {
+            message: messageText
+        };
+    
+        fetch('http://127.0.0.1:5000/textGeneration', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.text())
+        .then(result => {
+            const aiResponse = { text: '', sender: 'ai' };
+            setMessages(prevMessages => [...prevMessages, aiResponse]);
+            
+            let i = 0;
+            const typingInterval = setInterval(() => {
+                aiResponse.text += result.charAt(i);
+                setMessages(prevMessages => [...prevMessages]); 
+                
+                i++;
+                if (i === result.length) {
+                    clearInterval(typingInterval); 
+                }
+            }, 50); 
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
 
     function handleKeyDown(event) {
         if (event.key === 'Enter') {

@@ -1,12 +1,11 @@
 from flask import Flask, request, jsonify
 import random
 from flask_cors import CORS
+from LLM import textGeneration
 
 app = Flask(__name__)
 
 CORS(app)
-
-CORS(app, resources={r"/evolve": {"origins": "http://127.0.0.1:5500"}})
 
 # Define components and other global variables
 components = {
@@ -36,6 +35,12 @@ components = {
     ]
 }
 
+
+system_message = """
+As a text generation assistant, your role is to analyze and elucidate the specifications provided by the user
+regarding their computer setup. We'll delve into the advantages and disadvantages of the components chosen.
+Let's begin by dissecting the configuration."""
+
 # budget = 1000
 population_size = 100
 generations = 1000
@@ -57,6 +62,9 @@ def calculateFitness(individual, usage, style, budget):
     ram = individual["RAM"]
     gpu = individual["GPU"]
     psu = individual["PSU"]
+
+    total_price = int(total_price)
+    budget = int(budget)
     
     if (
         (motherboard["formfactor"] == casing["formfactor"]) and 
@@ -91,46 +99,6 @@ def mutation(individual):
     component = random.choice(list(components.keys()))
     mutated_individual[component] = random.choice(components[component])
     return mutated_individual
-
-
-@app.route('/evolve', methods=['POST'])
-def evolve_population():
-    data = request.get_json() 
-    usage = data['usage']
-    style = data['style']
-    budget = data['budget'] #1000
-    population_size = data['population_size'] #100
-    generations = data['generations'] #1000
-    print(usage)
-    population = [getRandomComponents() for _ in range(population_size)]
-
-    for generation in range(generations):
-        fitness_values = [(individual, calculateFitness(individual, usage=usage, style=style, budget=budget)) for individual in population]
-        population = [individual for individual, _ in sorted(fitness_values, key=lambda x: x[1], reverse=True)] 
-        selected_parents = population[:population_size // 2]
-        next_generation = []
-        for i in range(population_size // 2):
-            parent1 = random.choice(selected_parents)
-            parent2 = random.choice(selected_parents)
-            child = crossover(parent1, parent2)
-            if random.random() < 0.1: 
-                child = mutation(child)
-            next_generation.append(child)
-        
-        population = next_generation
-        
-        best_individual, best_fitness = max(fitness_values, key=lambda x: x[1])
-        print(f"Generation {generation+1}: Best Fitness: {best_fitness}, Total Price: {sum(option['price'] for option in best_individual.values())}")
-
-    best_individual, best_fitness = max(fitness_values, key=lambda x: x[1])
-
-    result = {
-        "best_individual": best_individual,
-        "total_price": sum(option['price'] for option in best_individual.values()),
-        "fitness": best_fitness
-    }
-
-    return jsonify(result)
 
 def calculate_score(specs, usage, style, budget):
     cpu = specs["CPU"]
@@ -214,14 +182,75 @@ def calculate_score(specs, usage, style, budget):
         "report": report
     }
 
+@app.route('/evolve', methods=['POST'])
+def evolve_population():
+    global result_string
+    data = request.get_json() 
+    usage = data['usage']
+    style = data['style']
+    budget = data['budget'] #1000
+    population_size = data['population_size'] #100
+    generations = data['generations'] #1000
+    print(usage)
+    population = [getRandomComponents() for _ in range(population_size)]
+
+    for generation in range(generations):
+        fitness_values = [(individual, calculateFitness(individual, usage=usage, style=style, budget=budget)) for individual in population]
+        population = [individual for individual, _ in sorted(fitness_values, key=lambda x: x[1], reverse=True)] 
+        selected_parents = population[:population_size // 2]
+        next_generation = []
+        for i in range(population_size // 2):
+            parent1 = random.choice(selected_parents)
+            parent2 = random.choice(selected_parents)
+            child = crossover(parent1, parent2)
+            if random.random() < 0.1: 
+                child = mutation(child)
+            next_generation.append(child)
+        
+        population = next_generation
+        
+        best_individual, best_fitness = max(fitness_values, key=lambda x: x[1])
+        print(f"Generation {generation+1}: Best Fitness: {best_fitness}, Total Price: {sum(option['price'] for option in best_individual.values())}, best individual: {best_individual}")
+
+    best_individual, best_fitness = max(fitness_values, key=lambda x: x[1])
+
+    result = {
+        "best_individual": best_individual,
+        "total_price": sum(option['price'] for option in best_individual.values()),
+        "fitness": best_fitness
+    }
+
+    formatted_individual = "\n".join([
+        f"{component}:\n"
+        f"  Name: {details['name']}\n"
+        f"  Base Clock: {details.get('base_clock', 'N/A')} GHz\n"
+        f"  Cores: {details.get('cores', 'N/A')}\n"
+        f"  Multi-threaded: {'Yes' if details.get('multi_threaded', False) else 'No'}\n"
+        f"  Socket: {details.get('socket', 'N/A')}\n"
+        f"  Wattage: {details.get('wattage', 'N/A')}W\n"
+        f"  Price: ${details.get('price', 'N/A')}"
+        for component, details in best_individual.items()
+    ])
+
+    result_string = f"""
+    Best Individual:
+    {formatted_individual}
+
+    Total Price: ${result['total_price']}
+    Fitness: {result['fitness']}
+    """
+    print(result_string)
+
+    return jsonify(result)
 
 @app.route('/evaluate', methods=['POST'])
 def evaluate_specs():
-    data = request.get_json()
-    specs = data['specs']
-    usage = data['usage']
-    style = data['style']
-    budget = data['budget']
+    data = request.json
+    print(data)  # Print received data for debugging purposes
+    specs = data.get('specs', {})
+    usage = data.get('usage', '')
+    style = data.get('style', '')
+    budget = int(data.get('budget', 0))  # Convert budget to integer, defaulting to 0 if not provided
 
     score = calculate_score(specs, usage, style, budget)
 
@@ -230,6 +259,28 @@ def evaluate_specs():
     }
 
     return jsonify(result)
+
+
+@app.route('/textGeneration', methods=['POST'])
+def text_generation():
+    global result_string  # Access the global variable
+    data = request.get_json()
+    message = data['message']
+
+    print(result_string)
+    print(message)
+
+    if result_string:
+        result_string += message
+
+    print(result_string)
+
+    res = textGeneration(system_message, result_string)
+
+    chat_completion_message = res.choices[0].message
+    content = chat_completion_message.content
+
+    return content
 
 if __name__ == '__main__':
     app.run(debug=True)

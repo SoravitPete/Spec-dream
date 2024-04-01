@@ -1,5 +1,5 @@
-.evolution-form {
-    max-width: 600px; /* Increased for better table layout */
+.evaluate-form {
+    max-width: 600px; /* Increased for better form layout */
     margin: 0 auto;
     margin-top: 100px;
     padding: 20px; /* Added padding for better spacing */
@@ -8,29 +8,30 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Added box shadow */
 }
 
-h1 {
+.evaluate-form h1 {
     color: #5a5a5a;
-    margin-top: 0; /* Removed margin-top to align with form */
+    margin-top: 0; 
 }
 
-.form-group {
+.evaluate-form .form-group {
     margin-bottom: 20px;
 }
 
-label {
+.evaluate-form label {
     margin-right: 10px;
     display: block;
     font-weight: bold;
 }
 
-input[type="number"],
-select {
+.evaluate-form input[type="text"],
+.evaluate-form input[type="number"],
+.evaluate-form select {
     width: 100%;
     padding: 5px;
     font-size: 16px;
 }
 
-.button-34 {
+.evaluate-form button[type="submit"] {
     background: #5E5DF0;
     border-radius: 999px;
     box-shadow: #5E5DF0 0 10px 20px -10px;
@@ -50,9 +51,9 @@ select {
     width: fit-content;
     word-break: break-word;
     border: 0;
-  }
+}
 
-.result {
+.evaluate-form .score {
     margin-top: 20px;
     padding: 20px;
     border: 1px solid #ccc;
@@ -60,35 +61,36 @@ select {
     color: black; /* Change text color to black */
 }
 
-/* New styles for the table */
-.result table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.result th,
-.result td {
-    padding: 8px;
-    border: 1px solid #474747;
-}
-
-.result th {
-    color: white;
-    background-color: #5a5a5a;
+.report-container {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .report-header {
+    font-size: 18px;
     font-weight: bold;
-    text-align: left;
-}
-
-.result td ul {
-    padding-left: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .report-item {
+    margin-bottom: 5px;
+  }
+  
+  .report-item label {
+    font-weight: bold;
+  }
+  
+  .report-item p {
     margin: 0;
-}
-
-.result td ul li {
-    list-style-type: none;
-}
-
-.result td ul li strong {
-    font-weight: bold;
-}
-
+  }
+  
+  .report-item.success {
+    color: green;
+  }
+  
+  .report-item.failure {
+    color: red;
+  }

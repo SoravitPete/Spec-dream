@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
-import './EvolutionForm.css'; // Import your CSS file for styling
+import React, { useState, useEffect } from 'react';
+import './EvolutionForm.css';
 
 function EvolutionForm() {
     const [usage, setUsage] = useState('');
     const [style, setStyle] = useState('');
     const [budget, setBudget] = useState('');
-    const [result, setResult] = useState(null);
+    const [result, setResult] = useState(() => {
+        const savedResult = getCookie('latestResult');
+        return savedResult ? JSON.parse(savedResult) : null;
+    });
+    const [loading, setLoading] = useState(false); 
+    useEffect(() => {
+        if (result) {
+            setCookie('latestResult', JSON.stringify(result));
+        } else {
+            setCookie('latestResult', '', -1); 
+        }
+    }, [result]);
 
     function evolve() {
+        setLoading(true); 
+
         const data = {
             usage,
             style,
@@ -25,15 +38,29 @@ function EvolutionForm() {
         })
         .then(response => response.json())
         .then(result => {
-            displayResult(result);
+            setResult(result);
+            setLoading(false); 
         })
         .catch(error => {
             console.error('Error:', error);
+            setLoading(false); 
         });
     }
 
-    function displayResult(result) {
-        setResult(result);
+    function clearResult() {
+        setResult(null);
+    }
+
+    function setCookie(name, value, days = 7) {
+        const expires = new Date(Date.now() + days * 864e5).toUTCString();
+        document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+    }
+
+    function getCookie(name) {
+        return document.cookie.split('; ').reduce((r, v) => {
+            const parts = v.split('=');
+            return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+        }, '');
     }
 
     return (
@@ -58,12 +85,45 @@ function EvolutionForm() {
                 <label htmlFor="budget">Budget:</label>
                 <input type="number" id="budget" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="Enter budget" />
             </div>
-            <button className="button-34" onClick={evolve}>Evolve</button> {/* Add className */}
+            <button className="button-34" onClick={evolve} disabled={loading}>
+                {loading ? 'Loading...' : 'Evolve'}
+            </button>
+            <span style={{ margin: '0 10px' }}></span>
+            <button className="button-34" onClick={clearResult} disabled={!result}>
+                Clear
+            </button>
             {result && (
                 <div className="result">
-                    <p>Best Individual: {JSON.stringify(result.best_individual)}</p>
-                    <p>Total Price: {result.total_price}</p>
-                    <p>Fitness: {result.fitness}</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {Object.entries(result.best_individual).map(([component, details]) => (
+                                <tr key={component}>
+                                    <td>{component}</td>
+                                    <td>
+                                        <ul>
+                                            {Object.entries(details).map(([property, value]) => (
+                                                <li key={property}><strong>{property}:</strong> {value}</li>
+                                            ))}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            ))}
+                            <tr>
+                                <td>Total Price:</td>
+                                <td>{result.total_price}</td>
+                            </tr>
+                            <tr>
+                                <td>Fitness:</td>
+                                <td>{result.fitness}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             )}
         </div>
