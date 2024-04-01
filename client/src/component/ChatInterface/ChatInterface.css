@@ -22,7 +22,7 @@
     margin: 10px;
     padding: 15px;
     border-radius: 15px;
-    background-color: #fff; /* Message bubble background color */
+    background-color: #484848; /* Message bubble background color */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
     display: inline-block;
     max-width: 70%; /* Limit message width */
@@ -40,7 +40,7 @@
 .input-container input {
     flex: 1;
     padding: 12px;
-    border: 1px solid #ccc;
+    border: 1px solid #4f4f4f;
     border-radius: 20px; /* Make input field rounded */
     outline: none;
 }

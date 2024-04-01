@@ -62,6 +62,9 @@ def calculateFitness(individual, usage, style, budget):
     ram = individual["RAM"]
     gpu = individual["GPU"]
     psu = individual["PSU"]
+
+    total_price = int(total_price)
+    budget = int(budget)
     
     if (
         (motherboard["formfactor"] == casing["formfactor"]) and 
@@ -207,7 +210,7 @@ def evolve_population():
         population = next_generation
         
         best_individual, best_fitness = max(fitness_values, key=lambda x: x[1])
-        print(f"Generation {generation+1}: Best Fitness: {best_fitness}, Total Price: {sum(option['price'] for option in best_individual.values())}")
+        print(f"Generation {generation+1}: Best Fitness: {best_fitness}, Total Price: {sum(option['price'] for option in best_individual.values())}, best individual: {best_individual}")
 
     best_individual, best_fitness = max(fitness_values, key=lambda x: x[1])
 
@@ -242,11 +245,12 @@ def evolve_population():
 
 @app.route('/evaluate', methods=['POST'])
 def evaluate_specs():
-    data = request.get_json()
-    specs = data['specs']
-    usage = data['usage']
-    style = data['style']
-    budget = data['budget']
+    data = request.json
+    print(data)  # Print received data for debugging purposes
+    specs = data.get('specs', {})
+    usage = data.get('usage', '')
+    style = data.get('style', '')
+    budget = int(data.get('budget', 0))  # Convert budget to integer, defaulting to 0 if not provided
 
     score = calculate_score(specs, usage, style, budget)
 
@@ -255,6 +259,7 @@ def evaluate_specs():
     }
 
     return jsonify(result)
+
 
 @app.route('/textGeneration', methods=['POST'])
 def text_generation():
@@ -265,7 +270,6 @@ def text_generation():
     print(result_string)
     print(message)
 
-    # Use the formatted result in the message
     if result_string:
         result_string += message
 

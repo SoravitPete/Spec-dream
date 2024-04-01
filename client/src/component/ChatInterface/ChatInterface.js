@@ -25,20 +25,32 @@ function ChatInterface() {
         })
         .then(response => response.text())
         .then(result => {
-            const aiResponse = { text: result, sender: 'ai' };
-            setMessages([...messages, aiResponse]); // Display AI response
+            const aiResponse = { text: '', sender: 'ai' };
+            setMessages(prevMessages => [...prevMessages, aiResponse]);
+            
+            let i = 0;
+            const typingInterval = setInterval(() => {
+                aiResponse.text += result.charAt(i);
+                setMessages(prevMessages => [...prevMessages]); 
+                
+                i++;
+                if (i === result.length) {
+                    clearInterval(typingInterval); 
+                }
+            }, 50); 
         })
         .catch(error => {
             console.error('Error:', error);
         });
     }
+    
 
     function handleKeyDown(event) {
         if (event.key === 'Enter') {
             event.preventDefault();
             const messageText = event.target.value;
             sendMessage(messageText);
-            event.target.value = ''; // Clear the input field
+            event.target.value = '';
         }
     }
 

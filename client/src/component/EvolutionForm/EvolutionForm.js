@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
-import './EvolutionForm.css'; // Import your CSS file for styling
+import React, { useState, useEffect } from 'react';
+import './EvolutionForm.css';
 
 function EvolutionForm() {
     const [usage, setUsage] = useState('');
     const [style, setStyle] = useState('');
     const [budget, setBudget] = useState('');
-    const [result, setResult] = useState(null);
-    const [loading, setLoading] = useState(false); // State variable for loading
+    const [result, setResult] = useState(() => {
+        const savedResult = getCookie('latestResult');
+        return savedResult ? JSON.parse(savedResult) : null;
+    });
+    const [loading, setLoading] = useState(false); 
+    useEffect(() => {
+        if (result) {
+            setCookie('latestResult', JSON.stringify(result));
+        } else {
+            setCookie('latestResult', '', -1); 
+        }
+    }, [result]);
 
     function evolve() {
-        setLoading(true); // Set loading to true when evolution starts
+        setLoading(true); 
 
         const data = {
             usage,
@@ -29,12 +39,28 @@ function EvolutionForm() {
         .then(response => response.json())
         .then(result => {
             setResult(result);
-            setLoading(false); // Set loading to false when evolution finishes
+            setLoading(false); 
         })
         .catch(error => {
             console.error('Error:', error);
-            setLoading(false); // Set loading to false if there's an error
+            setLoading(false); 
         });
+    }
+
+    function clearResult() {
+        setResult(null);
+    }
+
+    function setCookie(name, value, days = 7) {
+        const expires = new Date(Date.now() + days * 864e5).toUTCString();
+        document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+    }
+
+    function getCookie(name) {
+        return document.cookie.split('; ').reduce((r, v) => {
+            const parts = v.split('=');
+            return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+        }, '');
     }
 
     return (
@@ -60,7 +86,11 @@ function EvolutionForm() {
                 <input type="number" id="budget" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="Enter budget" />
             </div>
             <button className="button-34" onClick={evolve} disabled={loading}>
-                {loading ? 'Loading...' : 'Evolve'} {/* Change button text based on loading state */}
+                {loading ? 'Loading...' : 'Evolve'}
+            </button>
+            <span style={{ margin: '0 10px' }}></span>
+            <button className="button-34" onClick={clearResult} disabled={!result}>
+                Clear
             </button>
             {result && (
                 <div className="result">

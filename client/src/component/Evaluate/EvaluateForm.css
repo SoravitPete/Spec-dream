@@ -1,0 +1,96 @@
+.evaluate-form {
+    max-width: 600px; /* Increased for better form layout */
+    margin: 0 auto;
+    margin-top: 100px;
+    padding: 20px; /* Added padding for better spacing */
+    background-color: #f9f9f9; /* Added background color */
+    border-radius: 10px; /* Added border radius */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Added box shadow */
+}
+
+.evaluate-form h1 {
+    color: #5a5a5a;
+    margin-top: 0; 
+}
+
+.evaluate-form .form-group {
+    margin-bottom: 20px;
+}
+
+.evaluate-form label {
+    margin-right: 10px;
+    display: block;
+    font-weight: bold;
+}
+
+.evaluate-form input[type="text"],
+.evaluate-form input[type="number"],
+.evaluate-form select {
+    width: 100%;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.evaluate-form button[type="submit"] {
+    background: #5E5DF0;
+    border-radius: 999px;
+    box-shadow: #5E5DF0 0 10px 20px -10px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji",NotoColorEmoji,"Noto Color Emoji","Segoe UI Symbol","Android Emoji",EmojiSymbols,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 24px;
+    opacity: 1;
+    outline: 0 solid transparent;
+    padding: 8px 18px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: fit-content;
+    word-break: break-word;
+    border: 0;
+}
+
+.evaluate-form .score {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    color: black; /* Change text color to black */
+}
+
+.report-container {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .report-header {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .report-item {
+    margin-bottom: 5px;
+  }
+  
+  .report-item label {
+    font-weight: bold;
+  }
+  
+  .report-item p {
+    margin: 0;
+  }
+  
+  .report-item.success {
+    color: green;
+  }
+  
+  .report-item.failure {
+    color: red;
+  }
