@@ -192,6 +192,9 @@ def evolve_population():
     population_size = data['population_size'] #100
     generations = data['generations'] #1000
     print(usage)
+    
+    generation_data = []  # To store generation-wise data
+    
     population = [getRandomComponents() for _ in range(population_size)]
 
     for generation in range(generations):
@@ -212,12 +215,20 @@ def evolve_population():
         best_individual, best_fitness = max(fitness_values, key=lambda x: x[1])
         print(f"Generation {generation+1}: Best Fitness: {best_fitness}, Total Price: {sum(option['price'] for option in best_individual.values())}, best individual: {best_individual}")
 
+        generation_data.append({
+            "generation": generation+1,
+            "best_fitness": best_fitness,
+            "total_price": sum(option['price'] for option in best_individual.values()),
+            "best_individual": best_individual
+        })
+
     best_individual, best_fitness = max(fitness_values, key=lambda x: x[1])
 
     result = {
         "best_individual": best_individual,
         "total_price": sum(option['price'] for option in best_individual.values()),
-        "fitness": best_fitness
+        "fitness": best_fitness,
+        "generation_data": generation_data  # Include generation-wise data in the result
     }
 
     formatted_individual = "\n".join([
