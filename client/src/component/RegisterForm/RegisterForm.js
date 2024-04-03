@@ -54,7 +54,9 @@ const RegisterForm = () => {
         <input type="text" name="mobileNo" placeholder="Mobile Number" value={userData.mobileNo} onChange={handleChange} />
         <input type="text" name="birthday" placeholder="Birthday" value={userData.birthday} onChange={handleChange} />
         <input type="text" name="picture" placeholder="Profile Picture URL" value={userData.picture} onChange={handleChange} />
-        <button type="submit">Register</button>
+        <div style={{ marginTop: '20px' }}>
+          <button type="submit">Register</button>
+        </div>
       </form>
     </div>
   );

@@ -27,6 +27,8 @@ function EvolutionForm() {
             const fitnessValues = result.generation_data.map(data => data.best_fitness);
             const totalPriceValues = result.generation_data.map(data => data.total_price);
 
+            console.log(result.generation_data)
+
             const totalPriceCtx = document.getElementById('totalPriceChart');
             const fitnessCtx = document.getElementById('fitnessChart');
             const cpuCtx = document.getElementById('cpuChart');
@@ -35,6 +37,11 @@ function EvolutionForm() {
             const motherboardCtx = document.getElementById('motherboardChart');
             const psuCtx = document.getElementById('psuChart');
             const ramCtx = document.getElementById('ramChart');
+
+            console.log(cpuCtx, "cpuCTX")
+
+            console.log(ramCtx, "test")
+
             const cpuData = {}; 
             const gpuData = {};
             const casingData = {}
@@ -53,6 +60,8 @@ function EvolutionForm() {
                 }
             });
 
+            console.log(cpuData)
+
             result.generation_data.forEach(data => {
                 const gpuName = data.best_individual.GPU.name
                 if (gpuData[gpuName]) {
@@ -70,6 +79,8 @@ function EvolutionForm() {
                     casingData[casingName] = [data.best_individual.Casing.amount];
                 }
             });
+
+            console.log(casingData)
 
             result.generation_data.forEach(data => {
                 const motherboardName = data.best_individual.Motherboard.name;
@@ -175,6 +186,8 @@ function EvolutionForm() {
                     }
                 });
             }
+
+            console.log(totalPriceCtx)
             
             if (fitnessCtx) {
                 fitnessChartInstance = new Chart(fitnessCtx, {
@@ -197,6 +210,8 @@ function EvolutionForm() {
                     }
                 });
             }
+
+            console.log(fitnessCtx)
             
             if (gpuCtx) {
                 gpuChartInstance = new Chart(gpuCtx, {
@@ -219,6 +234,8 @@ function EvolutionForm() {
                     }
                 });
             }
+
+            console.log(gpuCtx)
             
             if (casingCtx) {
                 casingChartInstance = new Chart(casingCtx, {
@@ -241,7 +258,9 @@ function EvolutionForm() {
                     }
                 });
             }
-
+            
+            console.log(casingCtx)
+            
             if (motherboardCtx) {
                 motherboardChartInstance = new Chart(motherboardCtx, {
                     type: 'bar',
@@ -264,6 +283,8 @@ function EvolutionForm() {
                 });
             }
             
+            console.log(motherboardCtx)
+            
             if (psuCtx) {
                 psuChartInstance = new Chart(psuCtx, {
                     type: 'bar',
@@ -285,7 +306,9 @@ function EvolutionForm() {
                     }
                 });
             }
-
+            
+            console.log(psuCtx)
+            
             if (ramCtx) {
                 ramChartInstance = new Chart(ramCtx, {
                     type: 'bar',
@@ -307,7 +330,9 @@ function EvolutionForm() {
                     }
                 });
             }
-
+            
+            console.log(ramCtx)
+            
         } else {
             const totalPriceCtx = document.getElementById('totalPriceChart');
             const fitnessCtx = document.getElementById('fitnessChart');
@@ -355,7 +380,7 @@ function EvolutionForm() {
                 const ctxParent = casingCtx.parentNode;
                 ctxParent.removeChild(casingCtx);
                 const newCanvas = document.createElement('canvas');
-                newCanvas.id = 'gpuChart';
+                newCanvas.id = 'casingChart';
                 ctxParent.appendChild(newCanvas);
             }
 
@@ -363,7 +388,7 @@ function EvolutionForm() {
                 const ctxParent = motherboardCtx.parentNode;
                 ctxParent.removeChild(motherboardCtx);
                 const newCanvas = document.createElement('canvas');
-                newCanvas.id = 'gpuChart';
+                newCanvas.id = 'motherboardChart';
                 ctxParent.appendChild(newCanvas);
             }
 
@@ -371,7 +396,7 @@ function EvolutionForm() {
                 const ctxParent = psuCtx.parentNode;
                 ctxParent.removeChild(psuCtx);
                 const newCanvas = document.createElement('canvas');
-                newCanvas.id = 'gpuChart';
+                newCanvas.id = 'psuChart';
                 ctxParent.appendChild(newCanvas);
             }
 
@@ -379,7 +404,7 @@ function EvolutionForm() {
                 const ctxParent = ramCtx.parentNode;
                 ctxParent.removeChild(ramCtx);
                 const newCanvas = document.createElement('canvas');
-                newCanvas.id = 'gpuChart';
+                newCanvas.id = 'ramChart';
                 ctxParent.appendChild(newCanvas);
             }
     
