@@ -16,6 +16,7 @@ model User {
   firstName   String
   lastName    String
   email       String    @unique
+  password    String
   mobileNo    String
   birthday    DateTime
   picture     String

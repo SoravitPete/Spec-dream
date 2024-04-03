@@ -13,10 +13,10 @@ function EvolutionForm() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        let totalPriceChartInstance = null;
-        let fitnessChartInstance = null;
-        let cpuChartInstance = null;
-        let gpuChartInstance = null;
+        let totalPriceChartInstance = null
+        let fitnessChartInstance = null
+        let cpuChartInstance = null
+        let gpuChartInstance = null
         let casingChartInstance = null
         let motherboardChartInstance = null
         let psuChartInstance = null
@@ -64,37 +64,37 @@ function EvolutionForm() {
 
             result.generation_data.forEach(data => {
                 const casingName = data.best_individual.Casing.name;
-                if (cpuData[casingName]) {
-                    cpuData[casingName].push(data.best_individual.Casing.amount);
+                if (casingData[casingName]) {
+                    casingData[casingName].push(data.best_individual.Casing.amount);
                 } else {
-                    cpuData[casingName] = [data.best_individual.Casing.amount];
+                    casingData[casingName] = [data.best_individual.Casing.amount];
                 }
             });
 
             result.generation_data.forEach(data => {
                 const motherboardName = data.best_individual.Motherboard.name;
-                if (cpuData[motherboardName]) {
-                    cpuData[motherboardName].push(data.best_individual.Motherboard.amount);
+                if (motherboardData[motherboardName]) {
+                    motherboardData[motherboardName].push(data.best_individual.Motherboard.amount);
                 } else {
-                    cpuData[motherboardName] = [data.best_individual.Motherboard.amount];
+                    motherboardData[motherboardName] = [data.best_individual.Motherboard.amount];
                 }
             });
 
             result.generation_data.forEach(data => {
                 const psuName = data.best_individual.PSU.name;
-                if (cpuData[psuName]) {
-                    cpuData[psuName].push(data.best_individual.PSU.amount);
+                if (psuData[psuName]) {
+                    psuData[psuName].push(data.best_individual.PSU.amount);
                 } else {
-                    cpuData[psuName] = [data.best_individual.PSU.amount];
+                    psuData[psuName] = [data.best_individual.PSU.amount];
                 }
             });
 
             result.generation_data.forEach(data => {
                 const ramName = data.best_individual.RAM.name;
-                if (cpuData[ramName]) {
-                    cpuData[ramName].push(data.best_individual.RAM.amount);
+                if (ramData[ramName]) {
+                    ramData[ramName].push(data.best_individual.RAM.amount);
                 } else {
-                    cpuData[ramName] = [data.best_individual.RAM.amount];
+                    ramData[ramName] = [data.best_individual.RAM.amount];
                 }
             });
 
@@ -131,166 +131,182 @@ function EvolutionForm() {
                 ramChartInstance.destroy()
             }
 
-            cpuChartInstance = new Chart(cpuCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(cpuData),
-                    datasets: [{
-                        label: 'Count',
-                        data: Object.values(cpuData).map(cpuAmounts => cpuAmounts.length),
-                        backgroundColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
+            if (cpuCtx) {
+                cpuChartInstance = new Chart(cpuCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(cpuData),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(cpuData).map(cpuAmounts => cpuAmounts.length),
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
                         }
                     }
-                }
-            });
-
-            totalPriceChartInstance = new Chart(totalPriceCtx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Total Price',
-                        data: totalPriceValues,
-                        backgroundColor: 'rgba(255, 99, 132, 0.8)', 
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            fitnessChartInstance = new Chart(fitnessCtx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Best Fitness',
-                        data: fitnessValues,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        fill: false
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            gpuChartInstance = new Chart(gpuCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(gpuData),
-                    datasets: [{
-                        label: 'Count',
-                        data: Object.values(gpuData).map(gpuAmounts => gpuAmounts.length),
-                        backgroundColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            casingChartInstance = new Chart(casingCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(casingData),
-                    datasets: [{
-                        label: 'Count',
-                        data: Object.values(casingData).map(casingAmount => casingAmount.length),
-                        backgroundColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            motherboardChartInstance = new Chart(motherboardCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(motherboardData),
-                    datasets: [{
-                        label: 'Count',
-                        data: Object.values(motherboardData).map(motherboardAmount => motherboardAmount.length),
-                        backgroundColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
+                });
+            }
             
-            psuChartInstance = new Chart(psuCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(psuData),
-                    datasets: [{
-                        label: 'Count',
-                        data: Object.values(psuData).map(psuAmount => psuAmount.length),
-                        backgroundColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
+            if (totalPriceCtx) {
+                totalPriceChartInstance = new Chart(totalPriceCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Total Price',
+                            data: totalPriceValues,
+                            backgroundColor: 'rgba(255, 99, 132, 0.8)', 
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
+            
+            if (fitnessCtx) {
+                fitnessChartInstance = new Chart(fitnessCtx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Best Fitness',
+                            data: fitnessValues,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            if (gpuCtx) {
+                gpuChartInstance = new Chart(gpuCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(gpuData),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(gpuData).map(gpuAmounts => gpuAmounts.length),
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            if (casingCtx) {
+                casingChartInstance = new Chart(casingCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(casingData),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(casingData).map(casingAmount => casingAmount.length),
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
 
-            ramChartInstance = new Chart(ramCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(ramData),
-                    datasets: [{
-                        label: 'Count',
-                        data: Object.values(ramData).map(ramAmount => ramAmount.length),
-                        backgroundColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
+            if (motherboardCtx) {
+                motherboardChartInstance = new Chart(motherboardCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(motherboardData),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(motherboardData).map(motherboardAmount => motherboardAmount.length),
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
+            
+            if (psuCtx) {
+                psuChartInstance = new Chart(psuCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(psuData),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(psuData).map(psuAmount => psuAmount.length),
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (ramCtx) {
+                ramChartInstance = new Chart(ramCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(ramData),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(ramData).map(ramAmount => ramAmount.length),
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
 
         } else {
             const totalPriceCtx = document.getElementById('totalPriceChart');
@@ -373,14 +389,33 @@ function EvolutionForm() {
             if (totalPriceChartInstance) {
                 totalPriceChartInstance.destroy();
             }
+
             if (fitnessChartInstance) {
                 fitnessChartInstance.destroy();
             }
+
             if (cpuChartInstance) {
                 cpuChartInstance.destroy();
             }
+
             if (gpuChartInstance) {
                 gpuChartInstance.destroy();
+            }
+
+            if (casingChartInstance) {
+                casingChartInstance.destroy()
+            }
+
+            if (motherboardChartInstance) {
+                motherboardChartInstance.destroy()
+            }
+
+            if (psuChartInstance) {
+                psuChartInstance.destroy()
+            }
+
+            if (ramChartInstance) {
+                ramChartInstance.destroy()
             }
         };
     }, [result]);
@@ -498,6 +533,10 @@ function EvolutionForm() {
                 <canvas id="fitnessChart"></canvas>
                 <canvas id="cpuChart"></canvas>
                 <canvas id="gpuChart"></canvas>
+                <canvas id="casingChart"></canvas>
+                <canvas id="motherboardChart"></canvas>
+                <canvas id="ramChart"></canvas>
+                <canvas id="psuChart"></canvas>
             </div>
         </div>
     );

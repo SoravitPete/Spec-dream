@@ -4,6 +4,7 @@ import ChatInterface from './component/ChatInterface/ChatInterface.js';
 import Thread from './component/Thread/Thread.js';
 import Account from './component/Account/Account.js';
 import EvaluateForm from './component/Evaluate/EvaluateForm.js';
+import LoginForm from './component/LoginForm/LoginForm.js';
 import './App.css';
 
 function handleNavbarAnimation() {
@@ -40,32 +41,33 @@ function App() {
   const [currentComponent, setCurrentComponent] = useState('Dashboard');
   const [evolutionResult, setEvolutionResult] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const components = {
     CPU: [
-        {"name": "CPU1", "base_clock": 3.5, "cores": 4, "multi_threaded": false, "socket": "Socket1", "price": 200, "wattage": 100},
-        {"name": "CPU2", "base_clock": 3.0, "cores": 8, "multi_threaded": true, "socket": "Socket2", "price": 300, "wattage": 100}
+      { "name": "CPU1", "base_clock": 3.5, "cores": 4, "multi_threaded": false, "socket": "Socket1", "price": 200, "wattage": 100 },
+      { "name": "CPU2", "base_clock": 3.0, "cores": 8, "multi_threaded": true, "socket": "Socket2", "price": 300, "wattage": 100 }
     ],
     RAM: [
-        {"name": "RAM1", "capacity": 8, "rgb": true, "price": 100},
-        {"name": "RAM2", "capacity": 16, "rgb": false, "price": 150}
+      { "name": "RAM1", "capacity": 8, "rgb": true, "price": 100 },
+      { "name": "RAM2", "capacity": 16, "rgb": false, "price": 150 }
     ],
     GPU: [
-        {"name": "GPU1", "core_clock": 1400, "vram": 6, "price": 400},
-        {"name": "GPU2", "core_clock": 1200, "vram": 8, "price": 500}
+      { "name": "GPU1", "core_clock": 1400, "vram": 6, "price": 400 },
+      { "name": "GPU2", "core_clock": 1200, "vram": 8, "price": 500 }
     ],
     Motherboard: [
-        {"name": "Motherboard1", "formfactor": "ATX", "socket": "Socket1", "max_memory": 16, "price": 150},
-        {"name": "Motherboard2", "formfactor": "Mini-ITX", "socket": "Socket2", "max_memory": 32, "price": 200}
+      { "name": "Motherboard1", "formfactor": "ATX", "socket": "Socket1", "max_memory": 16, "price": 150 },
+      { "name": "Motherboard2", "formfactor": "Mini-ITX", "socket": "Socket2", "max_memory": 32, "price": 200 }
     ],
     Casing: [
-        {"name": "Casing1", "formfactor": "ATX", "rgb": true, "price": 80},
-        {"name": "Casing2", "formfactor": "Mini-ITX", "rgb": false, "price": 60}
+      { "name": "Casing1", "formfactor": "ATX", "rgb": true, "price": 80 },
+      { "name": "Casing2", "formfactor": "Mini-ITX", "rgb": false, "price": 60 }
     ],
     PSU: [
-        {"name": "PSU1", "wattage": 500, "price": 80},
-        {"name": "PSU2", "wattage": 600, "price": 100}
+      { "name": "PSU1", "wattage": 500, "price": 80 },
+      { "name": "PSU2", "wattage": 600, "price": 100 }
     ]
-};
+  };
 
   const navigateTo = (component) => {
     setCurrentComponent(component);
@@ -93,7 +95,7 @@ function App() {
       </div>
       <div className="app">
         {currentComponent === 'Dashboard' && <div>Dashboard Content Goes Here</div>}
-        {currentComponent === 'Account' && <Account />}
+        {currentComponent === 'Account' && <Account isLoggedIn={isLoggedIn} />}
         {currentComponent === 'Thread' && <Thread />}
         {currentComponent === 'EvolutionForm' && (
           <>

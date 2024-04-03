@@ -1,9 +1,12 @@
 import express,{ json } from 'express';
 import userRoute from './module/user/user.route'
 import threadRoute from './module/thread/thread.route'
+import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.use(cors());
 
 app.use(json());
 
