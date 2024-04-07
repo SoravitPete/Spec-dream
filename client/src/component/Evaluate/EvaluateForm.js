@@ -90,6 +90,10 @@ function EvaluateForm({ components }) {
                 <h2 className="report-header">Evaluation Report</h2>
                 {score !== null ? (
                     <div>
+                        <div className={`report-item ${score.score > 0 ? 'success' : 'failure'}`}>
+                            <label>Overall score:</label>
+                            <p>{score.score}</p>
+                        </div>
                         <div className={`report-item ${score.report.budget > 0 ? 'success' : 'failure'}`}>
                             <label>Budget:</label>
                             <p>{score.report.budget}</p>
@@ -97,6 +101,14 @@ function EvaluateForm({ components }) {
                         <div className={`report-item ${score.report.compatibility > 0 ? 'success' : 'failure'}`}>
                             <label>Compatibility:</label>
                             <p>{score.report.compatibility}</p>
+                        </div>
+                        <div className={`report-item ${score.report.performance > 0 ? 'success' : 'failure'}`}>
+                            <label>performance:</label>
+                            <p>{score.report.performance}</p>
+                        </div>
+                        <div className={`report-item ${score.report.style > 0 ? 'success' : 'failure'}`}>
+                            <label>style:</label>
+                            <p>{score.report.style}</p>
                         </div>
                         {/* Add more report items as needed */}
                     </div>

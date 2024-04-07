@@ -3,6 +3,7 @@ type DTOUser = {
     firstName: string
     lastName: string
     email: string
+    password: string
     mobileNo: string
     birthday: string
     picture: string
@@ -16,6 +17,7 @@ export function newUserData(
         firstName,
         lastName,
         email,
+        password,
         mobileNo,
         birthday,
         picture
@@ -26,6 +28,7 @@ export function newUserData(
         firstName,
         lastName,
         email,
+        password,
         mobileNo,
         birthday,
         picture

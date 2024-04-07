@@ -10,6 +10,7 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
       firstName: Joi.string().required(),
       lastName: Joi.string().required(),
       email: Joi.string().email().required(),
+      password: Joi.string().required(),
       mobileNo: Joi.string().allow('').optional(),
       birthday: Joi.string().isoDate().optional(),
       picture: Joi.string().allow('').optional(),
@@ -27,7 +28,7 @@ router.get('/',
     userController.getAll
 )
 
-router.post('/',
+router.post('/register',
     validateUser,
     userController.create
 )
@@ -35,6 +36,10 @@ router.post('/',
 router.put('/',
     validateUser,
     userController.update
+)
+
+router.post('/login',
+    userController.login
 )
 
 export default router

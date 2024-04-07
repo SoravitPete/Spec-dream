@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Chart from 'chart.js/auto';
 import './EvolutionForm.css';
 
 function EvolutionForm() {
@@ -9,17 +10,443 @@ function EvolutionForm() {
         const savedResult = getCookie('latestResult');
         return savedResult ? JSON.parse(savedResult) : null;
     });
-    const [loading, setLoading] = useState(false); 
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
-        if (result) {
-            setCookie('latestResult', JSON.stringify(result));
+        let totalPriceChartInstance = null
+        let fitnessChartInstance = null
+        let cpuChartInstance = null
+        let gpuChartInstance = null
+        let casingChartInstance = null
+        let motherboardChartInstance = null
+        let psuChartInstance = null
+        let ramChartInstance = null
+
+        if (result && result.generation_data && result.generation_data.length > 0) {
+            const labels = result.generation_data.map(data => data.generation);
+            const fitnessValues = result.generation_data.map(data => data.best_fitness);
+            const totalPriceValues = result.generation_data.map(data => data.total_price);
+
+            console.log(result.generation_data)
+
+            const totalPriceCtx = document.getElementById('totalPriceChart');
+            const fitnessCtx = document.getElementById('fitnessChart');
+            const cpuCtx = document.getElementById('cpuChart');
+            const gpuCtx = document.getElementById('gpuChart');
+            const casingCtx = document.getElementById('casingChart');
+            const motherboardCtx = document.getElementById('motherboardChart');
+            const psuCtx = document.getElementById('psuChart');
+            const ramCtx = document.getElementById('ramChart');
+
+            console.log(cpuCtx, "cpuCTX")
+
+            console.log(ramCtx, "test")
+
+            const cpuData = {}; 
+            const gpuData = {};
+            const casingData = {}
+            const motherboardData = {}
+            const psuData = {}
+            const ramData = {}
+
+            console.log(result.generation_data[0])
+
+            result.generation_data.forEach(data => {
+                const cpuName = data.best_individual.CPU.name;
+                if (cpuData[cpuName]) {
+                    cpuData[cpuName].push(data.best_individual.CPU.amount);
+                } else {
+                    cpuData[cpuName] = [data.best_individual.CPU.amount];
+                }
+            });
+
+            console.log(cpuData)
+
+            result.generation_data.forEach(data => {
+                const gpuName = data.best_individual.GPU.name
+                if (gpuData[gpuName]) {
+                    gpuData[gpuName].push(data.best_individual.GPU.amount);
+                } else {
+                    gpuData[gpuName] = [data.best_individual.GPU.amount]
+                }
+            })
+
+            result.generation_data.forEach(data => {
+                const casingName = data.best_individual.Casing.name;
+                if (casingData[casingName]) {
+                    casingData[casingName].push(data.best_individual.Casing.amount);
+                } else {
+                    casingData[casingName] = [data.best_individual.Casing.amount];
+                }
+            });
+
+            console.log(casingData)
+
+            result.generation_data.forEach(data => {
+                const motherboardName = data.best_individual.Motherboard.name;
+                if (motherboardData[motherboardName]) {
+                    motherboardData[motherboardName].push(data.best_individual.Motherboard.amount);
+                } else {
+                    motherboardData[motherboardName] = [data.best_individual.Motherboard.amount];
+                }
+            });
+
+            result.generation_data.forEach(data => {
+                const psuName = data.best_individual.PSU.name;
+                if (psuData[psuName]) {
+                    psuData[psuName].push(data.best_individual.PSU.amount);
+                } else {
+                    psuData[psuName] = [data.best_individual.PSU.amount];
+                }
+            });
+
+            result.generation_data.forEach(data => {
+                const ramName = data.best_individual.RAM.name;
+                if (ramData[ramName]) {
+                    ramData[ramName].push(data.best_individual.RAM.amount);
+                } else {
+                    ramData[ramName] = [data.best_individual.RAM.amount];
+                }
+            });
+
+
+            if (totalPriceChartInstance) {
+                totalPriceChartInstance.destroy();
+            }
+
+            if (fitnessChartInstance) {
+                fitnessChartInstance.destroy();
+            }
+
+            if (cpuChartInstance) {
+                cpuChartInstance.destroy();
+            }
+
+            if (gpuChartInstance) {
+                gpuChartInstance.destroy();
+            }
+
+            if (casingChartInstance) {
+                casingChartInstance.destroy()
+            }
+
+            if (motherboardChartInstance) {
+                motherboardChartInstance.destroy()
+            }
+
+            if (psuChartInstance) {
+                psuChartInstance.destroy()
+            }
+
+            if (ramChartInstance) {
+                ramChartInstance.destroy()
+            }
+
+            if (cpuCtx) {
+                cpuChartInstance = new Chart(cpuCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(cpuData),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(cpuData).map(cpuAmounts => cpuAmounts.length),
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            if (totalPriceCtx) {
+                totalPriceChartInstance = new Chart(totalPriceCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Total Price',
+                            data: totalPriceValues,
+                            backgroundColor: 'rgba(255, 99, 132, 0.8)', 
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            console.log(totalPriceCtx)
+            
+            if (fitnessCtx) {
+                fitnessChartInstance = new Chart(fitnessCtx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Best Fitness',
+                            data: fitnessValues,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            console.log(fitnessCtx)
+            
+            if (gpuCtx) {
+                gpuChartInstance = new Chart(gpuCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(gpuData),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(gpuData).map(gpuAmounts => gpuAmounts.length),
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            console.log(gpuCtx)
+            
+            if (casingCtx) {
+                casingChartInstance = new Chart(casingCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(casingData),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(casingData).map(casingAmount => casingAmount.length),
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            console.log(casingCtx)
+            
+            if (motherboardCtx) {
+                motherboardChartInstance = new Chart(motherboardCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(motherboardData),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(motherboardData).map(motherboardAmount => motherboardAmount.length),
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            console.log(motherboardCtx)
+            
+            if (psuCtx) {
+                psuChartInstance = new Chart(psuCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(psuData),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(psuData).map(psuAmount => psuAmount.length),
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            console.log(psuCtx)
+            
+            if (ramCtx) {
+                ramChartInstance = new Chart(ramCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(ramData),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(ramData).map(ramAmount => ramAmount.length),
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            console.log(ramCtx)
+            
         } else {
-            setCookie('latestResult', '', -1); 
+            const totalPriceCtx = document.getElementById('totalPriceChart');
+            const fitnessCtx = document.getElementById('fitnessChart');
+            const cpuCtx = document.getElementById('cpuChart');
+            const gpuCtx = document.getElementById('gpuChart')
+            const casingCtx = document.getElementById('casingChart');
+            const motherboardCtx = document.getElementById('motherboardChart');
+            const psuCtx = document.getElementById('psuChart');
+            const ramCtx = document.getElementById('ramChart');
+            
+
+            if (totalPriceCtx) {
+                const ctxParent = totalPriceCtx.parentNode;
+                ctxParent.removeChild(totalPriceCtx);
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = 'totalPriceChart';
+                ctxParent.appendChild(newCanvas);
+            }
+
+            if (fitnessCtx) {
+                const ctxParent = fitnessCtx.parentNode;
+                ctxParent.removeChild(fitnessCtx);
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = 'fitnessChart';
+                ctxParent.appendChild(newCanvas);
+            }
+
+            if (cpuCtx) {
+                const ctxParent = cpuCtx.parentNode;
+                ctxParent.removeChild(cpuCtx);
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = 'cpuChart';
+                ctxParent.appendChild(newCanvas);
+            }
+
+            if (gpuCtx) {
+                const ctxParent = gpuCtx.parentNode;
+                ctxParent.removeChild(gpuCtx);
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = 'gpuChart';
+                ctxParent.appendChild(newCanvas);
+            }
+
+            if (casingCtx) {
+                const ctxParent = casingCtx.parentNode;
+                ctxParent.removeChild(casingCtx);
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = 'casingChart';
+                ctxParent.appendChild(newCanvas);
+            }
+
+            if (motherboardCtx) {
+                const ctxParent = motherboardCtx.parentNode;
+                ctxParent.removeChild(motherboardCtx);
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = 'motherboardChart';
+                ctxParent.appendChild(newCanvas);
+            }
+
+            if (psuCtx) {
+                const ctxParent = psuCtx.parentNode;
+                ctxParent.removeChild(psuCtx);
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = 'psuChart';
+                ctxParent.appendChild(newCanvas);
+            }
+
+            if (ramCtx) {
+                const ctxParent = ramCtx.parentNode;
+                ctxParent.removeChild(ramCtx);
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = 'ramChart';
+                ctxParent.appendChild(newCanvas);
+            }
+    
         }
+
+        return () => {
+            if (totalPriceChartInstance) {
+                totalPriceChartInstance.destroy();
+            }
+
+            if (fitnessChartInstance) {
+                fitnessChartInstance.destroy();
+            }
+
+            if (cpuChartInstance) {
+                cpuChartInstance.destroy();
+            }
+
+            if (gpuChartInstance) {
+                gpuChartInstance.destroy();
+            }
+
+            if (casingChartInstance) {
+                casingChartInstance.destroy()
+            }
+
+            if (motherboardChartInstance) {
+                motherboardChartInstance.destroy()
+            }
+
+            if (psuChartInstance) {
+                psuChartInstance.destroy()
+            }
+
+            if (ramChartInstance) {
+                ramChartInstance.destroy()
+            }
+        };
     }, [result]);
 
     function evolve() {
-        setLoading(true); 
+        setLoading(true);
 
         const data = {
             usage,
@@ -36,15 +463,15 @@ function EvolutionForm() {
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(result => {
-            setResult(result);
-            setLoading(false); 
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            setLoading(false); 
-        });
+            .then(response => response.json())
+            .then(result => {
+                setResult(result);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                setLoading(false);
+            });
     }
 
     function clearResult() {
@@ -126,6 +553,16 @@ function EvolutionForm() {
                     </table>
                 </div>
             )}
+            <div className="chart-container">
+                <canvas id="totalPriceChart"></canvas>
+                <canvas id="fitnessChart"></canvas>
+                <canvas id="cpuChart"></canvas>
+                <canvas id="gpuChart"></canvas>
+                <canvas id="casingChart"></canvas>
+                <canvas id="motherboardChart"></canvas>
+                <canvas id="ramChart"></canvas>
+                <canvas id="psuChart"></canvas>
+            </div>
         </div>
     );
 }
