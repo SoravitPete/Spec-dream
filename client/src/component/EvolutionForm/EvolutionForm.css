@@ -14,6 +14,7 @@ h1 {
 }
 
 .form-group {
+    color: #474747;
     margin-bottom: 20px;
 }
 
@@ -60,7 +61,6 @@ select {
     color: black; /* Change text color to black */
 }
 
-/* New styles for the table */
 .result table {
     width: 100%;
     border-collapse: collapse;
@@ -92,3 +92,39 @@ select {
     font-weight: bold;
 }
 
+.cpu-brand-label {
+    color: #474747;
+}
+
+.gpu-brand-label {
+    color: #474747;
+}
+
+.chipset-brand-label {
+    margin-top: 20px;
+    color: #474747;
+}
+
+.checkbox-bar {
+    margin: auto;
+    margin-top: 20px;
+    color: #474747;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.checkbox-group {
+    margin-right: 20px; /* Adjust spacing between checkboxes */
+}
+
+.checkbox-group label {
+    margin-right: 5px; /* Adjust spacing between checkbox and label */
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 5px; /* Adjust spacing between checkboxes */
+}
+
+.checkbox-group:last-child {
+    margin-right: 0; /* Remove margin for the last checkbox group */
+}
