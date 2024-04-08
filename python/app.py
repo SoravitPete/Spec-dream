@@ -7,98 +7,157 @@ app = Flask(__name__)
 
 CORS(app)
 
-# Define components and other global variables
-components = {
-    "CPU": [
-        {"name": "CPU1", "base_clock": 3.5, "cores": 4, "multi_threaded": False, "socket": "Socket1", "price": 200, "wattage": 100},
-        {"name": "CPU2", "base_clock": 3.0, "cores": 8, "multi_threaded": True, "socket": "Socket2", "price": 300, "wattage": 100}
-    ],
-    "RAM": [
-        {"name": "RAM1", "capacity": 8, "rgb": True, "price": 100},
-        {"name": "RAM2", "capacity": 16, "rgb": False, "price": 150}
-    ],
-    "GPU": [
-        {"name": "GPU1", "core_clock": 1400, "vram": 6, "price": 400},
-        {"name": "GPU2", "core_clock": 1200, "vram": 8, "price": 500}
-    ],
-    "Motherboard": [
-        {"name": "Motherboard1", "formfactor": "ATX", "socket": "Socket1", "max_memory": 16, "price": 150},
-        {"name": "Motherboard2", "formfactor": "Mini-ITX", "socket": "Socket2", "max_memory": 32, "price": 200}
-    ],
-    "Casing": [
-        {"name": "Casing1", "formfactor": "ATX", "rgb": True, "price": 80},
-        {"name": "Casing2", "formfactor": "Mini-ITX", "rgb": False, "price": 60}
-    ],
-    "PSU": [
-        {"name": "PSU1", "wattage": 500, "price": 80},
-        {"name": "PSU2", "wattage": 600, "price": 100}
-    ]
-}
+def read_components(file_path):
+    with open(file_path, 'r') as file:
+        components_data = eval(file.read())
+    return components_data
 
+components_file_path = '/Users/felixia/Desktop/Spec-dream/data/formatted_data_python.txt'
+components = read_components(components_file_path)
 
 system_message = """
-As a text generation assistant, your role is to analyze and elucidate the specifications provided by the user
-regarding their computer setup. We'll delve into the advantages and disadvantages of the components chosen.
-Let's begin by dissecting the configuration."""
+I'm here to help you to answer the question in one paragraph with the simple language amd don't repeat the computer setup of the user.
+"""
 
-# budget = 1000
-population_size = 100
-generations = 1000
-
-def getRandomComponents():
+def getRandomComponents(components_filtered):
     individual = {}
-    for component, options in components.items():
-        individual[component] = random.choice(options)
+    for component, options in components_filtered.items():
+        if options:  # Check if options list is not empty
+            individual[component] = random.choice(options)
+    
+    for component in components.keys():
+        if component not in individual:
+            individual[component] = random.choice(components[component])
+    
     return individual
 
-
-def calculateFitness(individual, usage, style, budget):
-    total_price = sum(component["price"] for component in individual.values())
-    fitness = 1 / (1 + abs(budget - total_price))
+def filter_components(components, usage, style, cpu_brand, gpu_brand, gpu_chipset_brand):
+    filtered_components = {}
+    cpu_components = components.get("CPU")
+    motherboard_components = components.get("Motherboard")
+    casing_components = components.get("Casing")
+    ram_components = components.get("RAM")
+    gpu_components = components.get("GPU")
+    psu_components = components.get("PSU")
     
-    cpu = individual["CPU"]
-    motherboard = individual["Motherboard"]
-    casing = individual["Casing"]
-    ram = individual["RAM"]
-    gpu = individual["GPU"]
-    psu = individual["PSU"]
+    for psu in psu_components:
+        filtered_components.setdefault("PSU", []).append(psu)
+    for cpu in cpu_components:
+        filtered_components.setdefault("CPU", []).append(cpu)
+    for ram in ram_components:
+        filtered_components.setdefault("RAM", []).append(ram)
+    for motherboard in motherboard_components:
+        filtered_components.setdefault("Motherboard", []).append(motherboard)
+    for casing in casing_components:
+        filtered_components.setdefault("Casing", []).append(casing)
+    for gpu in gpu_components:
+        filtered_components.setdefault("GPU", []).append(gpu)
 
-    total_price = int(total_price)
-    budget = int(budget)
-    
-    if (
-        (motherboard["formfactor"] == casing["formfactor"]) and 
-        (motherboard["socket"] == cpu["socket"]) and 
-        (ram["capacity"] <= motherboard["max_memory"]) and 
-        # (psu["wattage"] >= cpu["wattage"] + 300) and 
-        
-        ((usage == "Gaming" and cpu["base_clock"] >= 3.5 and ram["capacity"] >= 8 and gpu["core_clock"] >= 1300) or
-         (usage == "Streaming/Editing" and cpu["cores"] >= 6 and cpu["multi_threaded"] and gpu["vram"] >= 4) or
-         (usage == "Office/Browsing" and cpu["base_clock"] <= 3.0 and gpu["core_clock"] <= 1300)) and
-        
-        ((style == "Gamer" and casing["rgb"] and ram["rgb"]) or
-         (style == "Minimalist" and not casing["rgb"] and not ram["rgb"]))
-    ):
-        fitness += 1
+    if usage == "Gaming":
+        filtered_components["CPU"] = []
+        filtered_components["RAM"] = []
+        for cpu in cpu_components:
+            if cpu.get("base_clock", 0) >= 3.5 and cpu.get("cores", 0) >= 6:
+                filtered_components.setdefault("CPU", []).append(cpu)
+        for ram in ram_components:
+            if ram.get("capacity", 0) >= 8:
+                filtered_components.setdefault("RAM", []).append(ram)
+    elif usage == "Streaming/Editing":
+        filtered_components["CPU"] = []
+        filtered_components["GPU"] = []
+        for cpu in cpu_components:
+            if cpu.get("cores", 0) >= 6:
+                filtered_components.setdefault("CPU", []).append(cpu)
+        for gpu in gpu_components:
+            if gpu.get("vram", 0) >= 4:
+                filtered_components.setdefault("GPU", []).append(gpu)
+    elif usage == "Office/Browsing":
+        filtered_components["CPU"] = []
+        for cpu in cpu_components:
+            if cpu.get("cores", 0) >= 6:
+                filtered_components.setdefault("CPU", []).append(cpu)
+
+    if style == "Gamer":
+        filtered_components["Casing"] = []
+        for casing in casing_components:
+            if casing.get("rgb", False):
+                filtered_components.setdefault("Casing", []).append(casing)
+    elif style == "Minimalist":
+        filtered_components["Casing"] = []
+        for casing in casing_components:
+            if not casing.get("rgb", False):
+                filtered_components.setdefault("Casing", []).append(casing)
     else:
-        fitness -= 1
+        filtered_components["Casing"] = casing_components
+        
+    if cpu_brand.lower() == "intel":
+        cpu_components = filtered_components["CPU"]
+        filtered_components["CPU"] = []
+        for cpu in cpu_components:
+            if cpu.get("brand") == "Intel" :
+                filtered_components.setdefault("CPU", []).append(cpu)
+                
+    if cpu_brand.lower() == "amd":
+        cpu_components = filtered_components["CPU"]
+        filtered_components["CPU"] = []
+        for cpu in cpu_components:
+            if cpu.get("brand") == "AMD" :
+                filtered_components.setdefault("CPU", []).append(cpu)
+                
+    if gpu_brand or gpu_chipset_brand:
+        print('test')
+        gpu_components = filtered_components["GPU"]
+        filtered_components["GPU"] = []
+        for gpu in gpu_components:
+            print(gpu.get("chipset").lower())
+            print(gpu_chipset_brand)
+            if gpu.get("brand").lower() in gpu_brand and gpu.get("chipset").lower() in gpu_chipset_brand:
+                filtered_components["GPU"].append(gpu)
+    
+    print(filtered_components['GPU'],'test')
+
+    return filtered_components
+
+
+def calculateFitness(individual, budget):
+    total_price = sum(component["price"] for component in individual.values())
+    price_difference = abs(budget - total_price)
+    
+
+    if price_difference <=  0:  # If total price is within 10% of budget
+        fitness = 1.0  # Highest fitness
+    else:
+        fitness = 1 / (1 + price_difference)  # Otherwise, inverse proportion to price difference
     
     return fitness
 
-def crossover(parent1, parent2):
-    child = {}
-    for component in components.keys():
-        if random.random() < 0.5:
-            child[component] = parent1[component]
-        else:
-            child[component] = parent2[component]
-    return child
-
-def mutation(individual):
+def mutation(individual, budget):
     mutated_individual = individual.copy()
     component = random.choice(list(components.keys()))
-    mutated_individual[component] = random.choice(components[component])
+    new_component = random.choice(components[component])
+    
+    current_price = sum(comp['price'] for comp in mutated_individual.values())
+    price_difference = budget - current_price
+    
+    mutation_rate = min(0.1, abs(price_difference) / budget)
+    
+    if random.random() < mutation_rate:
+        if new_component['price'] <= abs(price_difference):
+            mutated_individual[component] = new_component
+        else:
+            mutated_individual[component] = random.choice(components[component])
+    
     return mutated_individual
+
+def crossover(parent1, parent2, budget):
+    child = {}
+    for component in components.keys():
+        weight = abs(budget - sum(comp['price'] for comp in parent1.values())) / budget
+        if random.random() < 0.5:
+            child[component] = parent1[component] if random.random() < weight else parent2[component]
+        else:
+            child[component] = parent2[component] if random.random() < weight else parent1[component]
+    return child
 
 def calculate_score(specs, usage, style, budget):
     cpu = specs["CPU"]
@@ -125,15 +184,15 @@ def calculate_score(specs, usage, style, budget):
     cpu_score = 10 if cpu["base_clock"] >= 3.5 else 1
     motherboard_score = 10 if motherboard["formfactor"] == casing["formfactor"] and motherboard["socket"] == cpu["socket"] and ram["capacity"] <= motherboard["max_memory"] else 1
     ram_score = 10 if ram["capacity"] >= 8 else 1
-    gpu_score = 10 if gpu["core_clock"] >= 1300 else 1
-    psu_score = 10 if psu["wattage"] >= cpu["wattage"] + 300 else 1
+    # gpu_score = 10 if gpu["core_clock"] >= 1300 else 1
+    # psu_score = 10 if psu["wattage"] >= cpu["wattage"] + 300 else 1
 
     cpu_power_score = 10 if cpu["cores"] >= 6 and cpu["multi_threaded"] else 1
     gpu_capability_score = 10 if gpu["vram"] >= 4 else 1
     ram_capacity_score = 10 if ram["capacity"] >= 16 else 1
 
     if (
-        (usage == "Gaming" and cpu_score == 10 and ram_score == 10 and gpu_score == 10) or
+        (usage == "Gaming" and cpu_score == 10 and ram_score == 10 ) or
         (usage == "Streaming/Editing" and cpu_power_score == 10 and gpu_capability_score == 10) or
         (usage == "Office/Browsing" and cpu["base_clock"] <= 3.0 and ram_capacity_score == 10)
     ):
@@ -172,8 +231,8 @@ def calculate_score(specs, usage, style, budget):
     report["CPU Score"] = cpu_score
     report["Motherboard Score"] = motherboard_score
     report["RAM Score"] = ram_score
-    report["GPU Score"] = gpu_score
-    report["PSU Score"] = psu_score
+    # report["GPU Score"] = gpu_score
+    # report["PSU Score"] = psu_score
     report["Casing Style Score"] = casing_score
     report["RAM Style Score"] = ram_style_score
 
@@ -185,35 +244,46 @@ def calculate_score(specs, usage, style, budget):
 @app.route('/evolve', methods=['POST'])
 def evolve_population():
     global result_string
-    data = request.get_json() 
+    data = request.get_json()
+    print(data)
     usage = data['usage']
     style = data['style']
-    budget = data['budget'] #1000
-    population_size = data['population_size'] #100
-    generations = data['generations'] #1000
-    print(usage)
-    
-    generation_data = []  # To store generation-wise data
-    
-    population = [getRandomComponents() for _ in range(population_size)]
+    budget = data['budget']
+    cpuBrand = data.get('cpuBrand', '').lower()  # Convert to lowercase
+    gpuBrand = [brand.lower() for brand in data.get('selectedGPUBrands', [])]  # Convert to lowercase
+    gpuChipsetBrand = [brand.lower() for brand in data.get('selectedGPUChipsetBrands', [])]  # Convert to lowercase
+    population_size = data['population_size']
+    generations = data['generations']
+
+    components_filtered = filter_components(components, usage=usage, style=style, cpu_brand=cpuBrand, gpu_brand=gpuBrand, gpu_chipset_brand=gpuChipsetBrand)
+
+    generation_data = []
+    best_individual_so_far = None
+    best_fitness_so_far = 0.0
+
+    print(data)
 
     for generation in range(generations):
-        fitness_values = [(individual, calculateFitness(individual, usage=usage, style=style, budget=budget)) for individual in population]
+        if best_individual_so_far is not None:
+            population = [best_individual_so_far] + [getRandomComponents(components_filtered) for _ in range(population_size - 1)]
+        else:
+            population = [getRandomComponents(components_filtered) for _ in range(population_size)]
+        
+        fitness_values = [(individual, calculateFitness(individual, budget=budget)) for individual in population]
         population = [individual for individual, _ in sorted(fitness_values, key=lambda x: x[1], reverse=True)] 
         selected_parents = population[:population_size // 2]
         next_generation = []
         for i in range(population_size // 2):
             parent1 = random.choice(selected_parents)
             parent2 = random.choice(selected_parents)
-            child = crossover(parent1, parent2)
+            child = crossover(parent1, parent2, budget=budget)
             if random.random() < 0.1: 
-                child = mutation(child)
+                child = mutation(child, budget=budget)
             next_generation.append(child)
-        
+    
         population = next_generation
-        
+    
         best_individual, best_fitness = max(fitness_values, key=lambda x: x[1])
-        print(f"Generation {generation+1}: Best Fitness: {best_fitness}, Total Price: {sum(option['price'] for option in best_individual.values())}, best individual: {best_individual}")
 
         generation_data.append({
             "generation": generation+1,
@@ -222,7 +292,15 @@ def evolve_population():
             "best_individual": best_individual
         })
 
-    best_individual, best_fitness = max(fitness_values, key=lambda x: x[1])
+        if best_fitness >= best_fitness_so_far:
+            best_fitness_so_far = best_fitness
+            best_individual_so_far = best_individual
+        else:
+            best_individual = best_individual_so_far
+            best_fitness = best_fitness_so_far
+
+        if best_fitness == 1.0:
+            break
 
     result = {
         "best_individual": best_individual,
@@ -257,11 +335,10 @@ def evolve_population():
 @app.route('/evaluate', methods=['POST'])
 def evaluate_specs():
     data = request.json
-    print(data)  # Print received data for debugging purposes
     specs = data.get('specs', {})
     usage = data.get('usage', '')
     style = data.get('style', '')
-    budget = int(data.get('budget', 0))  # Convert budget to integer, defaulting to 0 if not provided
+    budget = int(data.get('budget', 0))
 
     score = calculate_score(specs, usage, style, budget)
 
@@ -274,22 +351,20 @@ def evaluate_specs():
 
 @app.route('/textGeneration', methods=['POST'])
 def text_generation():
-    global result_string  # Access the global variable
+    global result_string 
     data = request.get_json()
     message = data['message']
 
     print(result_string)
     print(message)
-
-    if result_string:
-        result_string += message
-
-    print(result_string)
-
-    res = textGeneration(system_message, result_string)
-
-    chat_completion_message = res.choices[0].message
-    content = chat_completion_message.content
+    
+    res = textGeneration(system_message, message, result_string)
+    
+    try:
+        chat_completion_message = res.choices[0].message
+        content = chat_completion_message.content
+    except Exception as e: 
+        content = "This question is not about the computer. Please fix your sentence by adding a keyword like 'computer' or 'spec'."
 
     return content
 

@@ -11,6 +11,9 @@ function EvolutionForm() {
         return savedResult ? JSON.parse(savedResult) : null;
     });
     const [loading, setLoading] = useState(false);
+    const [cpuBrand, setCpuBrand] = useState('');
+    const [selectedGPUBrands, setSelectedGPUBrands] = useState([]);
+    const [selectedGPUChipsetBrands, setSelectedGPUChipsetBrands] = useState([]);
 
     useEffect(() => {
         let totalPriceChartInstance = null
@@ -38,18 +41,12 @@ function EvolutionForm() {
             const psuCtx = document.getElementById('psuChart');
             const ramCtx = document.getElementById('ramChart');
 
-            console.log(cpuCtx, "cpuCTX")
-
-            console.log(ramCtx, "test")
-
-            const cpuData = {}; 
+            const cpuData = {};
             const gpuData = {};
             const casingData = {}
             const motherboardData = {}
             const psuData = {}
             const ramData = {}
-
-            console.log(result.generation_data[0])
 
             result.generation_data.forEach(data => {
                 const cpuName = data.best_individual.CPU.name;
@@ -59,8 +56,6 @@ function EvolutionForm() {
                     cpuData[cpuName] = [data.best_individual.CPU.amount];
                 }
             });
-
-            console.log(cpuData)
 
             result.generation_data.forEach(data => {
                 const gpuName = data.best_individual.GPU.name
@@ -148,7 +143,7 @@ function EvolutionForm() {
                     data: {
                         labels: Object.keys(cpuData),
                         datasets: [{
-                            label: 'Count',
+                            label: 'CPU Result',
                             data: Object.values(cpuData).map(cpuAmounts => cpuAmounts.length),
                             backgroundColor: 'rgba(255, 99, 132, 1)',
                             borderWidth: 1
@@ -156,6 +151,9 @@ function EvolutionForm() {
                     },
                     options: {
                         scales: {
+                            x: {
+                                display: false
+                            },
                             y: {
                                 beginAtZero: true
                             }
@@ -163,7 +161,7 @@ function EvolutionForm() {
                     }
                 });
             }
-            
+
             if (totalPriceCtx) {
                 totalPriceChartInstance = new Chart(totalPriceCtx, {
                     type: 'bar',
@@ -172,13 +170,16 @@ function EvolutionForm() {
                         datasets: [{
                             label: 'Total Price',
                             data: totalPriceValues,
-                            backgroundColor: 'rgba(255, 99, 132, 0.8)', 
+                            backgroundColor: 'rgba(255, 99, 132, 0.8)',
                             borderColor: 'rgba(255, 99, 132, 1)',
                             borderWidth: 1
                         }]
                     },
                     options: {
                         scales: {
+                            x: {
+                                display: false
+                            },
                             y: {
                                 beginAtZero: true
                             }
@@ -188,7 +189,7 @@ function EvolutionForm() {
             }
 
             console.log(totalPriceCtx)
-            
+
             if (fitnessCtx) {
                 fitnessChartInstance = new Chart(fitnessCtx, {
                     type: 'line',
@@ -203,6 +204,9 @@ function EvolutionForm() {
                     },
                     options: {
                         scales: {
+                            x: {
+                                display: false
+                            },
                             y: {
                                 beginAtZero: true
                             }
@@ -212,14 +216,14 @@ function EvolutionForm() {
             }
 
             console.log(fitnessCtx)
-            
+
             if (gpuCtx) {
                 gpuChartInstance = new Chart(gpuCtx, {
                     type: 'bar',
                     data: {
                         labels: Object.keys(gpuData),
                         datasets: [{
-                            label: 'Count',
+                            label: 'GPU Result',
                             data: Object.values(gpuData).map(gpuAmounts => gpuAmounts.length),
                             backgroundColor: 'rgba(255, 99, 132, 1)',
                             borderWidth: 1
@@ -227,6 +231,9 @@ function EvolutionForm() {
                     },
                     options: {
                         scales: {
+                            x: {
+                                display: false
+                            },
                             y: {
                                 beginAtZero: true
                             }
@@ -236,14 +243,14 @@ function EvolutionForm() {
             }
 
             console.log(gpuCtx)
-            
+
             if (casingCtx) {
                 casingChartInstance = new Chart(casingCtx, {
                     type: 'bar',
                     data: {
                         labels: Object.keys(casingData),
                         datasets: [{
-                            label: 'Count',
+                            label: 'Casing Result',
                             data: Object.values(casingData).map(casingAmount => casingAmount.length),
                             backgroundColor: 'rgba(255, 99, 132, 1)',
                             borderWidth: 1
@@ -251,6 +258,9 @@ function EvolutionForm() {
                     },
                     options: {
                         scales: {
+                            x: {
+                                display: false
+                            },
                             y: {
                                 beginAtZero: true
                             }
@@ -258,16 +268,16 @@ function EvolutionForm() {
                     }
                 });
             }
-            
+
             console.log(casingCtx)
-            
+
             if (motherboardCtx) {
                 motherboardChartInstance = new Chart(motherboardCtx, {
                     type: 'bar',
                     data: {
                         labels: Object.keys(motherboardData),
                         datasets: [{
-                            label: 'Count',
+                            label: 'Motherbaord Result',
                             data: Object.values(motherboardData).map(motherboardAmount => motherboardAmount.length),
                             backgroundColor: 'rgba(255, 99, 132, 1)',
                             borderWidth: 1
@@ -275,6 +285,9 @@ function EvolutionForm() {
                     },
                     options: {
                         scales: {
+                            x: {
+                                display: false
+                            },
                             y: {
                                 beginAtZero: true
                             }
@@ -282,16 +295,16 @@ function EvolutionForm() {
                     }
                 });
             }
-            
+
             console.log(motherboardCtx)
-            
+
             if (psuCtx) {
                 psuChartInstance = new Chart(psuCtx, {
                     type: 'bar',
                     data: {
                         labels: Object.keys(psuData),
                         datasets: [{
-                            label: 'Count',
+                            label: 'PSU Result',
                             data: Object.values(psuData).map(psuAmount => psuAmount.length),
                             backgroundColor: 'rgba(255, 99, 132, 1)',
                             borderWidth: 1
@@ -299,6 +312,9 @@ function EvolutionForm() {
                     },
                     options: {
                         scales: {
+                            x: {
+                                display: false
+                            },
                             y: {
                                 beginAtZero: true
                             }
@@ -306,16 +322,16 @@ function EvolutionForm() {
                     }
                 });
             }
-            
+
             console.log(psuCtx)
-            
+
             if (ramCtx) {
                 ramChartInstance = new Chart(ramCtx, {
                     type: 'bar',
                     data: {
                         labels: Object.keys(ramData),
                         datasets: [{
-                            label: 'Count',
+                            label: 'RAM Result',
                             data: Object.values(ramData).map(ramAmount => ramAmount.length),
                             backgroundColor: 'rgba(255, 99, 132, 1)',
                             borderWidth: 1
@@ -323,6 +339,9 @@ function EvolutionForm() {
                     },
                     options: {
                         scales: {
+                            x: {
+                                display: false
+                            },
                             y: {
                                 beginAtZero: true
                             }
@@ -330,9 +349,9 @@ function EvolutionForm() {
                     }
                 });
             }
-            
+
             console.log(ramCtx)
-            
+
         } else {
             const totalPriceCtx = document.getElementById('totalPriceChart');
             const fitnessCtx = document.getElementById('fitnessChart');
@@ -342,7 +361,7 @@ function EvolutionForm() {
             const motherboardCtx = document.getElementById('motherboardChart');
             const psuCtx = document.getElementById('psuChart');
             const ramCtx = document.getElementById('ramChart');
-            
+
 
             if (totalPriceCtx) {
                 const ctxParent = totalPriceCtx.parentNode;
@@ -407,7 +426,7 @@ function EvolutionForm() {
                 newCanvas.id = 'ramChart';
                 ctxParent.appendChild(newCanvas);
             }
-    
+
         }
 
         return () => {
@@ -452,6 +471,9 @@ function EvolutionForm() {
             usage,
             style,
             budget: parseInt(budget),
+            cpuBrand,
+            selectedGPUBrands,
+            selectedGPUChipsetBrands,
             population_size: 100,
             generations: 1000
         };
@@ -490,12 +512,48 @@ function EvolutionForm() {
         }, '');
     }
 
+    function handleCPUCheckboxChange(event) {
+        const { id, checked } = event.target;
+        console.log('Checkbox ID:', id); // Log the checkbox ID
+        console.log('Checked:', checked); // Log whether the checkbox is checked or not
+
+        const brand = event.target.value;
+
+        setCpuBrand(checked ? brand : '');
+
+        const otherCheckboxId = id === 'intel' ? 'amd' : 'intel';
+        document.getElementById(otherCheckboxId).checked = false;
+    }
+
+    function handleGPUCheckboxChange(event) {
+        const brand = event.target.value;
+        const isChecked = event.target.checked;
+
+        if (isChecked) {
+            setSelectedGPUBrands(prevBrands => [...prevBrands, brand]);
+        } else {
+            setSelectedGPUBrands(prevBrands => prevBrands.filter(selectedBrand => selectedBrand !== brand));
+        }
+    }
+
+    function handleGPUChipsetCheckboxChange(event) {
+        const brand = event.target.value;
+        const isChecked = event.target.checked;
+
+        if (isChecked) {
+            setSelectedGPUChipsetBrands(prevBrands => [...prevBrands, brand]);
+        } else {
+            setSelectedGPUChipsetBrands(prevBrands => prevBrands.filter(selectedBrand => selectedBrand !== brand));
+        }
+    }
+
     return (
         <div className="evolution-form">
             <h1>PC Builder</h1>
             <div className="form-group">
                 <label htmlFor="usage">Usage:</label>
                 <select id="usage" value={usage} onChange={(e) => setUsage(e.target.value)}>
+                    <option value="">Select Usage</option>
                     <option value="Gaming">Gaming</option>
                     <option value="Streaming/Editing">Streaming/Editing</option>
                     <option value="Office/Browsing">Office/Browsing</option>
@@ -504,6 +562,7 @@ function EvolutionForm() {
             <div className="form-group">
                 <label htmlFor="style">Style:</label>
                 <select id="style" value={style} onChange={(e) => setStyle(e.target.value)}>
+                    <option value="">Select style</option>
                     <option value="Gamer">Gamer</option>
                     <option value="Minimalist">Minimalist</option>
                 </select>
@@ -511,6 +570,55 @@ function EvolutionForm() {
             <div className="form-group">
                 <label htmlFor="budget">Budget:</label>
                 <input type="number" id="budget" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="Enter budget" />
+            </div>
+            <label htmlFor="cpuBrand" class="cpu-brand-label">CPU Brand:</label>
+            <div>
+                <div className="checkbox-bar">
+                    <div className="checkbox-group">
+                        <label htmlFor="intel">Intel</label>
+                        <input type="checkbox" id="intel" value="Intel" onChange={handleCPUCheckboxChange} />
+                    </div>
+                    <div className="checkbox-group">
+                        <label htmlFor="amd">AMD</label>
+                        <input type="checkbox" id="amd" value="AMD" onChange={handleCPUCheckboxChange} />
+                    </div>
+                </div>
+            </div>
+
+            <label htmlFor="gpuBrand" class="gpu-brand-label">GPU Brand:</label>
+            <div className="checkbox-bar">
+                {[
+                    "AMD", "Power color", "Asrock", "Sapphire", "Galax",
+                    "GIGABYTE", "ZOTAC", "MSI", "COLORFUL", "INNO3D",
+                    "PNY", "NVIDIA"
+                ].map((brand) => (
+                    <div className="checkbox-group" key={brand}>
+                        <label htmlFor={brand}>{brand}</label>
+                        <input
+                            type="checkbox"
+                            id={brand.toLowerCase()}
+                            value={brand}
+                            onChange={handleGPUCheckboxChange}
+                        />
+                    </div>
+                ))}
+            </div>
+
+            <label htmlFor="gpuChipsetBrand" class="chipset-brand-label">GPU Chipset Brand:</label>
+            <div className="checkbox-bar">
+                {[
+                    "AMD", "NVIDIA", "Intel"
+                ].map((brand) => (
+                    <div className="checkbox-group" key={brand}>
+                        <label htmlFor={brand}>{brand}</label>
+                        <input
+                            type="checkbox"
+                            id={brand.toLowerCase()}
+                            value={brand}
+                            onChange={handleGPUChipsetCheckboxChange}
+                        />
+                    </div>
+                ))}
             </div>
             <button className="button-34" onClick={evolve} disabled={loading}>
                 {loading ? 'Loading...' : 'Evolve'}
