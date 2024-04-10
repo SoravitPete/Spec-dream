@@ -14,6 +14,15 @@ function EvolutionForm() {
     const [cpuBrand, setCpuBrand] = useState('');
     const [selectedGPUBrands, setSelectedGPUBrands] = useState([]);
     const [selectedGPUChipsetBrands, setSelectedGPUChipsetBrands] = useState([]);
+    const [selectedMBBrands, setSelectedMBBrands] = useState([]);
+    const [accountName, setUsername] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [mobileNo, setMobileNo] = useState('');
+    const [birthday, setBirthday] = useState('');
+    const [picture, setPicture] = useState('');
 
     useEffect(() => {
         let totalPriceChartInstance = null
@@ -24,6 +33,40 @@ function EvolutionForm() {
         let motherboardChartInstance = null
         let psuChartInstance = null
         let ramChartInstance = null
+
+        const storedUsername = localStorage.getItem('accountName');
+        const storedFirstName = localStorage.getItem('firstName');
+        const storedLastName = localStorage.getItem('lastName');
+        const storedEmail = localStorage.getItem('email');
+        const storedPassword = localStorage.getItem('password');
+        const storedMobileNo = localStorage.getItem('mobileNo');
+        const storedBirthday = localStorage.getItem('birthday');
+        const storedPicture = localStorage.getItem('picture');
+
+        if (storedUsername) {
+            setUsername(storedUsername);
+        }
+        if (storedFirstName) {
+            setFirstName(storedFirstName);
+        }
+        if (storedLastName) {
+            setLastName(storedLastName);
+        }
+        if (storedEmail) {
+            setEmail(storedEmail);
+        }
+        if (storedPassword) {
+            setPassword(storedPassword);
+        }
+        if (storedMobileNo) {
+            setMobileNo(storedMobileNo);
+        }
+        if (storedBirthday) {
+            setBirthday(storedBirthday);
+        }
+        if (storedPicture) {
+            setPicture(storedPicture);
+        }
 
         if (result && result.generation_data && result.generation_data.length > 0) {
             const labels = result.generation_data.map(data => data.generation);
@@ -474,6 +517,7 @@ function EvolutionForm() {
             cpuBrand,
             selectedGPUBrands,
             selectedGPUChipsetBrands,
+            selectedMBBrands,
             population_size: 100,
             generations: 1000
         };
@@ -514,8 +558,8 @@ function EvolutionForm() {
 
     function handleCPUCheckboxChange(event) {
         const { id, checked } = event.target;
-        console.log('Checkbox ID:', id); // Log the checkbox ID
-        console.log('Checked:', checked); // Log whether the checkbox is checked or not
+        console.log('Checkbox ID:', id);
+        console.log('Checked:', checked);
 
         const brand = event.target.value;
 
@@ -547,9 +591,70 @@ function EvolutionForm() {
         }
     }
 
+    function handleMBBrandCheckboxChange(event) {
+        const brand = event.target.value;
+        const isChecked = event.target.checked;
+
+        if (isChecked) {
+            setSelectedMBBrands(prevBrands => [...prevBrands, brand]);
+        } else {
+            setSelectedMBBrands(prevBrands => prevBrands.filter(selectedBrand => selectedBrand !== brand));
+        }
+    }
+
+    async function saveComponentsToUserDatabase(components) {
+        try {
+            const fetchDataResponse = await fetch(`http://localhost:3000/user?accountName=${accountName}`);
+            if (!fetchDataResponse.ok) {
+                console.error('Failed to fetch old data from the database');
+                return;
+            }
+            const oldData = await fetchDataResponse.json();
+            const userSpec = oldData[0].spec
+
+            const mergedSpec = [...userSpec, components]
+
+            const requestBody = {
+                accountName: accountName,
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                password: password,
+                spec: mergedSpec,
+                mobileNo: mobileNo,
+                birthday: birthday,
+                picture: picture,
+            };
+
+            console.log(requestBody)
+
+            const response = await fetch(`http://localhost:3000/user/saveResult/${accountName}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (response.ok) {
+                console.log('Components saved successfully');
+            } else {
+                console.error('Failed to save components');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    function handleSaveButtonClick() {
+        console.log(result.best_individual); // Log the result data
+        saveComponentsToUserDatabase(result.best_individual);
+    }
+
     return (
         <div className="evolution-form">
             <h1>PC Builder</h1>
+            <div style={{ marginBottom: '20px' }}></div> {/* Add space here */}
             <div className="form-group">
                 <label htmlFor="usage">Usage:</label>
                 <select id="usage" value={usage} onChange={(e) => setUsage(e.target.value)}>
@@ -557,6 +662,7 @@ function EvolutionForm() {
                     <option value="Gaming">Gaming</option>
                     <option value="Streaming/Editing">Streaming/Editing</option>
                     <option value="Office/Browsing">Office/Browsing</option>
+                    <option value="Content Creation">Content Creation</option>
                 </select>
             </div>
             <div className="form-group">
@@ -571,8 +677,8 @@ function EvolutionForm() {
                 <label htmlFor="budget">Budget:</label>
                 <input type="number" id="budget" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="Enter budget" />
             </div>
-            <label htmlFor="cpuBrand" class="cpu-brand-label">CPU Brand:</label>
-            <div>
+            <div className="checkbox-card">
+                <label htmlFor="cpuBrand" className="cpu-brand-label">CPU Brand:</label>
                 <div className="checkbox-bar">
                     <div className="checkbox-group">
                         <label htmlFor="intel">Intel</label>
@@ -585,40 +691,63 @@ function EvolutionForm() {
                 </div>
             </div>
 
-            <label htmlFor="gpuBrand" class="gpu-brand-label">GPU Brand:</label>
-            <div className="checkbox-bar">
-                {[
-                    "AMD", "Power color", "Asrock", "Sapphire", "Galax",
-                    "GIGABYTE", "ZOTAC", "MSI", "COLORFUL", "INNO3D",
-                    "PNY", "NVIDIA"
-                ].map((brand) => (
-                    <div className="checkbox-group" key={brand}>
-                        <label htmlFor={brand}>{brand}</label>
-                        <input
-                            type="checkbox"
-                            id={brand.toLowerCase()}
-                            value={brand}
-                            onChange={handleGPUCheckboxChange}
-                        />
-                    </div>
-                ))}
+            <div className="checkbox-card">
+                <label htmlFor="gpuBrand" className="gpu-brand-label">GPU Brand:</label>
+                <div className="checkbox-bar">
+                    {[
+                        "AMD", "Power color", "Asrock", "Sapphire", "Galax",
+                        "GIGABYTE", "ZOTAC", "MSI", "COLORFUL", "INNO3D",
+                        "PNY", "NVIDIA"
+                    ].map((brand) => (
+                        <div className="checkbox-group" key={brand}>
+                            <label htmlFor={brand}>{brand}</label>
+                            <input
+                                type="checkbox"
+                                id={brand.toLowerCase()}
+                                value={brand}
+                                onChange={handleGPUCheckboxChange}
+                            />
+                        </div>
+                    ))}
+                </div>
             </div>
 
-            <label htmlFor="gpuChipsetBrand" class="chipset-brand-label">GPU Chipset Brand:</label>
-            <div className="checkbox-bar">
-                {[
-                    "AMD", "NVIDIA", "Intel"
-                ].map((brand) => (
-                    <div className="checkbox-group" key={brand}>
-                        <label htmlFor={brand}>{brand}</label>
-                        <input
-                            type="checkbox"
-                            id={brand.toLowerCase()}
-                            value={brand}
-                            onChange={handleGPUChipsetCheckboxChange}
-                        />
-                    </div>
-                ))}
+            <div className="checkbox-card">
+                <label htmlFor="gpuChipsetBrand" className="chipset-brand-label">GPU Chipset Brand:</label>
+                <div className="checkbox-bar">
+                    {[
+                        "AMD", "NVIDIA", "Intel"
+                    ].map((brand) => (
+                        <div className="checkbox-group" key={brand}>
+                            <label htmlFor={brand}>{brand}</label>
+                            <input
+                                type="checkbox"
+                                id={brand.toLowerCase()}
+                                value={brand}
+                                onChange={handleGPUChipsetCheckboxChange}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="checkbox-card">
+                <label htmlFor="MBBrand" className="chipset-brand-label">Mainboard Brand:</label>
+                <div className="checkbox-bar">
+                    {[
+                        "GIGABYTE", "ASROCK", "ASUS", "MSI", "COLORFUL"
+                    ].map((brand) => (
+                        <div className="checkbox-group" key={brand}>
+                            <label htmlFor={brand}>{brand}</label>
+                            <input
+                                type="checkbox"
+                                id={brand.toLowerCase()}
+                                value={brand}
+                                onChange={handleMBBrandCheckboxChange}
+                            />
+                        </div>
+                    ))}
+                </div>
             </div>
             <button className="button-34" onClick={evolve} disabled={loading}>
                 {loading ? 'Loading...' : 'Evolve'}
@@ -626,6 +755,9 @@ function EvolutionForm() {
             <span style={{ margin: '0 10px' }}></span>
             <button className="button-34" onClick={clearResult} disabled={!result}>
                 Clear
+            </button>
+            <button className="button-34" onClick={handleSaveButtonClick} disabled={!result}>
+                Save Components to User Database
             </button>
             {result && (
                 <div className="result">

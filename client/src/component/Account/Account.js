@@ -6,9 +6,10 @@ import RegisterForm from '../RegisterForm/RegisterForm';
 const Account = ({ isLoggedIn, onRegister }) => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [user, setUser] = useState(null);
+  const [redirectToLogin, setRedirectToLogin] = useState(false); // New state for redirection
 
   useEffect(() => {
-    const storedUser = getCookie('user');
+    const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -16,43 +17,60 @@ const Account = ({ isLoggedIn, onRegister }) => {
 
   const toggleRegister = () => {
     setIsRegistering(!isRegistering);
+    setRedirectToLogin(false);
   };
 
   const handleLogin = (userData) => {
     setUser(userData);
-    setCookie('user', JSON.stringify(userData), 1);
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('isLoggedIn', true);
+    localStorage.setItem('accountName', userData.accountName);
+    localStorage.setItem('firstName', userData.firstName)
+    localStorage.setItem('lastName', userData.lastName)
+    localStorage.setItem('email', userData.email)
+    localStorage.setItem('password', userData.password)
+    localStorage.setItem('mobileNo', userData.mobileNo)
+    localStorage.setItem('birthday', userData.birthday)
+    localStorage.setItem('picture', userData.picture)
+    window.location.reload(); // Reload the website after logout
   };
 
   const handleLogout = () => {
     setUser(null);
-    deleteCookie('user');
+    localStorage.removeItem('user');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('accountName');
+    localStorage.removeItem('firstName');
+    localStorage.removeItem('lastName');
+    localStorage.removeItem('email');
+    localStorage.removeItem('password');
+    localStorage.removeItem('mobileNo');
+    localStorage.removeItem('birthday');
+    localStorage.removeItem('picture');
+    window.location.reload(); // Reload the website after logout
   };
 
-  const getCookie = (name) => {
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-      const [cookieName, cookieValue] = cookie.split('=');
-      if (cookieName.trim() === name) {
-        return decodeURIComponent(cookieValue);
-      }
+
+  const handleRegister = (userData) => {
+    onRegister(userData);
+    setRedirectToLogin(true); // Set redirection state after successful registration
+  };
+
+  useEffect(() => {
+    if (redirectToLogin && !isRegistering) {
+      setIsRegistering(false);
     }
-    return null;
-  };
+  }, [redirectToLogin, isRegistering]);
 
-  const setCookie = (name, value, days) => {
-    const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    const expires = "expires=" + date.toUTCString();
-    document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
-  };
-
-  const deleteCookie = (name) => {
-    document.cookie = name + '=; Max-Age=-99999999;';
-  };
+  useEffect(() => {
+    if (redirectToLogin && isRegistering) {
+      setIsRegistering(false); // Reset registration state
+    }
+  }, [redirectToLogin, isRegistering]);
 
   return (
     <div className="account">
-      {isLoggedIn || user ? (
+      {isLoggedIn || localStorage.getItem('isLoggedIn') ? (
         <div>
           <h2>Welcome to your account, {user ? user.firstName + ' ' + user.lastName : ''}!</h2>
           <p>Email: {user ? user.email : ''}</p>
@@ -64,13 +82,13 @@ const Account = ({ isLoggedIn, onRegister }) => {
       ) : (
         <div>
           {isRegistering ? (
-            <RegisterForm onRegister={onRegister} />
+            <RegisterForm onRegister={handleRegister} />
           ) : (
             <LoginForm onLogin={handleLogin} />
           )}
           <div style={{ marginTop: '20px' }}>
             <button onClick={toggleRegister}>
-              {isRegistering ? 'Back to Login' : 'Register'}
+              {isRegistering ? 'Back to Login' : 'Sign Up'}
             </button>
           </div>
         </div>

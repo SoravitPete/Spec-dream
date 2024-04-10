@@ -69,10 +69,11 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response) {
     try {
-        const { id } = req.params
+        const { accountName } = req.params
+        console.log(accountName)
         const updateUser = await db.update({
             where: {
-                id
+                accountName
             },
             data: req.body
         })

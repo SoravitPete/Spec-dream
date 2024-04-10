@@ -11,6 +11,7 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
       lastName: Joi.string().required(),
       email: Joi.string().email().required(),
       password: Joi.string().required(),
+      spec: Joi.array().items(),
       mobileNo: Joi.string().allow('').optional(),
       birthday: Joi.string().isoDate().optional(),
       picture: Joi.string().allow('').optional(),
@@ -33,7 +34,7 @@ router.post('/register',
     userController.create
 )
 
-router.put('/',
+router.put('/saveResult/:accountName',
     validateUser,
     userController.update
 )

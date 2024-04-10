@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import './RegisterForm.css'
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import './RegisterForm.css';
 
 const RegisterForm = () => {
   const [userData, setUserData] = useState({
@@ -9,13 +11,17 @@ const RegisterForm = () => {
     email: '',
     password: '',
     mobileNo: '',
-    birthday: '',
+    birthday: new Date(), // Set initial date value
     picture: ''
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData({ ...userData, [name]: value });
+  };
+
+  const handleDateChange = (date) => {
+    setUserData({ ...userData, birthday: date });
   };
 
   const handleSubmit = async (e) => {
@@ -29,8 +35,6 @@ const RegisterForm = () => {
         },
         body: JSON.stringify(userData),
       });
-
-      console.log(userData)
 
       if (response.ok) {
         console.log('Registration successful');
@@ -52,7 +56,13 @@ const RegisterForm = () => {
         <input type="email" name="email" placeholder="Email" value={userData.email} onChange={handleChange} />
         <input type="password" name="password" placeholder="Password" value={userData.password} onChange={handleChange} />
         <input type="text" name="mobileNo" placeholder="Mobile Number" value={userData.mobileNo} onChange={handleChange} />
-        <input type="text" name="birthday" placeholder="Birthday" value={userData.birthday} onChange={handleChange} />
+        <DatePicker
+          selected={userData.birthday}
+          onChange={handleDateChange}
+          dateFormat="yyyy-MM-dd"
+          placeholderText="Select Birthday"
+          className="date-picker"
+        />
         <input type="text" name="picture" placeholder="Profile Picture URL" value={userData.picture} onChange={handleChange} />
         <div style={{ marginTop: '20px' }}>
           <button type="submit">Register</button>

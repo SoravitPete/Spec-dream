@@ -22,7 +22,7 @@ I'm here to help you to answer the question in one paragraph with the simple lan
 def getRandomComponents(components_filtered):
     individual = {}
     for component, options in components_filtered.items():
-        if options:  # Check if options list is not empty
+        if options:
             individual[component] = random.choice(options)
     
     for component in components.keys():
@@ -31,7 +31,7 @@ def getRandomComponents(components_filtered):
     
     return individual
 
-def filter_components(components, usage, style, cpu_brand, gpu_brand, gpu_chipset_brand):
+def filter_components(components, usage, style, cpu_brand, gpu_brand, gpu_chipset_brand, mb_brand):
     filtered_components = {}
     cpu_components = components.get("CPU")
     motherboard_components = components.get("Motherboard")
@@ -55,13 +55,32 @@ def filter_components(components, usage, style, cpu_brand, gpu_brand, gpu_chipse
 
     if usage == "Gaming":
         filtered_components["CPU"] = []
+        filtered_components["GPU"] = []
         filtered_components["RAM"] = []
         for cpu in cpu_components:
             if cpu.get("base_clock", 0) >= 3.5 and cpu.get("cores", 0) >= 6:
                 filtered_components.setdefault("CPU", []).append(cpu)
+        for gpu in gpu_components:
+            if gpu.get("vram", 0) >= 6:
+                filtered_components.setdefault("GPU", []).append(gpu)
         for ram in ram_components:
             if ram.get("capacity", 0) >= 8:
                 filtered_components.setdefault("RAM", []).append(ram)
+                
+    elif usage == "Content Creation":
+        filtered_components["CPU"] = []
+        filtered_components["GPU"] = []
+        filtered_components["RAM"] = []
+        for cpu in cpu_components:
+            if cpu.get("base_clock", 0) >= 3.5 and cpu.get("cores", 0) >= 6:
+                filtered_components.setdefault("CPU", []).append(cpu)
+        for gpu in gpu_components:
+            if gpu.get("vram", 0) >= 4:
+                filtered_components.setdefault("GPU", []).append(gpu)
+        for ram in ram_components:
+            if ram.get("capacity", 0) >= 8:
+                filtered_components.setdefault("RAM", []).append(ram)
+    
     elif usage == "Streaming/Editing":
         filtered_components["CPU"] = []
         filtered_components["GPU"] = []
@@ -105,29 +124,38 @@ def filter_components(components, usage, style, cpu_brand, gpu_brand, gpu_chipse
                 filtered_components.setdefault("CPU", []).append(cpu)
                 
     if gpu_brand or gpu_chipset_brand:
-        print('test')
         gpu_components = filtered_components["GPU"]
         filtered_components["GPU"] = []
         for gpu in gpu_components:
-            print(gpu.get("chipset").lower())
-            print(gpu_chipset_brand)
             if gpu.get("brand").lower() in gpu_brand and gpu.get("chipset").lower() in gpu_chipset_brand:
                 filtered_components["GPU"].append(gpu)
-    
-    print(filtered_components['GPU'],'test')
+                
+    if mb_brand:
+        motherboard_components = filtered_components["Motherboard"]
+        filtered_components["Motherboard"] = []
+        for mb in motherboard_components:
+            if mb.get("brand").lower() in mb_brand:
+                filtered_components["Motherboard"].append(mb)
 
     return filtered_components
 
 
 def calculateFitness(individual, budget):
     total_price = sum(component["price"] for component in individual.values())
+    print(individual['CPU']['socket'])
+    print(individual['Motherboard']['socket'])
     price_difference = abs(budget - total_price)
     
-
     if price_difference <=  0:  # If total price is within 10% of budget
         fitness = 1.0  # Highest fitness
     else:
         fitness = 1 / (1 + price_difference)  # Otherwise, inverse proportion to price difference
+    
+    if int(individual['PSU']['wattage']) < (int(individual['GPU']['wattage']) + 500):
+        fitness = 0
+    
+    if individual['CPU']['socket'] != individual['Motherboard']['socket']:
+        fitness = 0
     
     return fitness
 
@@ -252,16 +280,15 @@ def evolve_population():
     cpuBrand = data.get('cpuBrand', '').lower()  # Convert to lowercase
     gpuBrand = [brand.lower() for brand in data.get('selectedGPUBrands', [])]  # Convert to lowercase
     gpuChipsetBrand = [brand.lower() for brand in data.get('selectedGPUChipsetBrands', [])]  # Convert to lowercase
+    mbBrand = [brand.lower() for brand in data.get('selectedMBBrands', [])]
     population_size = data['population_size']
     generations = data['generations']
 
-    components_filtered = filter_components(components, usage=usage, style=style, cpu_brand=cpuBrand, gpu_brand=gpuBrand, gpu_chipset_brand=gpuChipsetBrand)
+    components_filtered = filter_components(components, usage=usage, style=style, cpu_brand=cpuBrand, gpu_brand=gpuBrand, gpu_chipset_brand=gpuChipsetBrand, mb_brand=mbBrand)
 
     generation_data = []
     best_individual_so_far = None
     best_fitness_so_far = 0.0
-
-    print(data)
 
     for generation in range(generations):
         if best_individual_so_far is not None:
@@ -328,7 +355,6 @@ def evolve_population():
     Total Price: ${result['total_price']}
     Fitness: {result['fitness']}
     """
-    print(result_string)
 
     return jsonify(result)
 
@@ -354,9 +380,6 @@ def text_generation():
     global result_string 
     data = request.get_json()
     message = data['message']
-
-    print(result_string)
-    print(message)
     
     res = textGeneration(system_message, message, result_string)
     

@@ -32,6 +32,7 @@ select {
 }
 
 .button-34 {
+    margin-top: 20px;
     background: #5E5DF0;
     border-radius: 999px;
     box-shadow: #5E5DF0 0 10px 20px -10px;
@@ -101,7 +102,6 @@ select {
 }
 
 .chipset-brand-label {
-    margin-top: 20px;
     color: #474747;
 }
 
@@ -128,3 +128,31 @@ select {
 .checkbox-group:last-child {
     margin-right: 0; /* Remove margin for the last checkbox group */
 }
+
+.checkbox-card {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.checkbox-card label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.checkbox-group label {
+    margin-right: 10px;
+}
+
+

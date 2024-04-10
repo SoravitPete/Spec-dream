@@ -1,4 +1,4 @@
-{
+export const components = {
   CPU: [
     {'name': 'AMD RYZEN 3 3200G 3.6 GHz (SOCKET AM4)', 'base_clock': 3.6, 'cores': 4, 'multi_threaded': true, 'socket': 'AM4', 'price': 2690, 'brand': 'AMD'},
     {'name': 'AMD RYZEN 3 5600X 3.7 GHz (SOCKET AM4)', 'base_clock': 3.7, 'cores': 6, 'multi_threaded': true, 'socket': 'AM4', 'price': 5590, 'brand': 'AMD'},
@@ -1408,3 +1408,4 @@
     {'name': 'CASE (เคส) BE QUIET DARK BASE PRO 901 (BLACK)', 'formfactor': 'XL-ATX', 'rgb': false, 'price': 11900},
   ],
 };
+

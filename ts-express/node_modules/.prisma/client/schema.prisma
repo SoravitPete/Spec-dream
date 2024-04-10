@@ -10,20 +10,77 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+type component {
+  CPU         CPUComponent
+  Casing      CasingComponent
+  GPU         GPUComponent
+  Motherboard MotherboardComponent
+  PSU         PSUComponent
+  RAM         RAMComponent
+}
+
+type CPUComponent {
+  base_clock     Float
+  brand          String
+  cores          Int
+  multi_threaded Boolean
+  name           String
+  price          Float
+  socket         String
+}
+
+type CasingComponent {
+  formfactor String
+  name       String
+  price      Float
+  rgb        Boolean
+}
+
+type GPUComponent {
+  brand   String
+  chipset String
+  name    String
+  price   Float
+  vram    Int
+  wattage String
+}
+
+type MotherboardComponent {
+  formfactor String
+  max_memory Int
+  name       String
+  price      Float
+  socket     String
+}
+
+type PSUComponent {
+  name    String
+  price   Float
+  wattage Int
+}
+
+type RAMComponent {
+  capacity Int
+  name     String
+  price    Float
+  rgb      Boolean
+}
+
 model User {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  accountName String    @unique
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  accountName String      @unique
   firstName   String
   lastName    String
-  email       String    @unique
+  email       String      @unique
   password    String
   mobileNo    String
   birthday    DateTime
   picture     String
-  created     DateTime  @default(now())
-  updated     DateTime  @updatedAt
-  UserThread  Thread[]  @relation("userThread")
-  UserComment Comment[] @relation("userComment")
+  spec        component[]
+  created     DateTime    @default(now())
+  updated     DateTime    @updatedAt
+  UserThread  Thread[]    @relation("userThread")
+  UserComment Comment[]   @relation("userComment")
 }
 
 model Thread {

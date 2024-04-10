@@ -1,0 +1,128 @@
+/* Dashboard.css */
+
+.dashboard-container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 100px;
+    color: #444;
+}
+
+.user-spec {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.user-spec h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.user-spec ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.user-spec-item {
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.user-table {
+    margin-bottom: 20px;
+}
+
+.user-table h3 {
+    margin-bottom: 10px;
+}
+
+.user-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-table table th,
+.user-table table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+.user-table table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    text-align: left;
+}
+
+.user-spec-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-table table td {
+    max-width: 200px; /* Set maximum width for value cells */
+    word-wrap: break-word; /* Allow long values to wrap */
+}
+
+.full-value {
+    white-space: normal; /* Allow the full content to be displayed */
+    overflow: auto; /* Enable scrolling if content exceeds container */
+    cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.modal {
+    display: block;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    color: #444;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Table inside modal */
+.modal-content table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.modal-content table td,
+.modal-content table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.modal-content table th {
+    background-color: #f2f2f2;
+}

@@ -1,9 +1,12 @@
+import { component } from "@prisma/client"
+
 type DTOUser = {
     accountName: string
     firstName: string
     lastName: string
     email: string
     password: string
+    spec?: component[]
     mobileNo: string
     birthday: string
     picture: string
@@ -18,6 +21,7 @@ export function newUserData(
         lastName,
         email,
         password,
+        spec,
         mobileNo,
         birthday,
         picture
@@ -29,6 +33,7 @@ export function newUserData(
         lastName,
         email,
         password,
+        spec,
         mobileNo,
         birthday,
         picture
